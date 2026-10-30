@@ -293,6 +293,80 @@ img {
   max-width: 100%;
 }
 
+/* HEADER LOGO ANAVEL EMPIRE */
+
+header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  padding: 12px 14px !important;
+  min-height: 90px;
+}
+
+.brand {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 9px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.brand .logo img {
+  width: 68px !important;
+  height: 68px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+.brand strong {
+  display: block !important;
+  font-size: 16px !important;
+  white-space: nowrap;
+}
+
+.brand span {
+  display: block !important;
+  font-size: 10px !important;
+}
+
+.kampus-logo {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.kampus-logo img {
+  width: 105px !important;
+  height: 55px !important;
+  object-fit: contain !important;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.brand-text strong:first-child {
+  color: #24558a !important;
+  font-size: 12px !important;
+}
+
+.brand-text span {
+  color: #b18b45 !important;
+  font-size: 13px !important;
+  font-weight: 800;
+}
+
+.brand-text strong:last-child {
+  color: #24558a !important;
+  font-size: 14px !important;
+}
+
 </style>
 </head>
 <body>
@@ -305,11 +379,13 @@ img {
     src="https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/file_00000000260c820bbcfd4ee649dcadd3.png"
     alt="Logo ANAVEL EMPIRE"
     style="width:100px;height:100px;object-fit:contain;"
-<
-    <div>
-      <strong>ANAVEL EMPIRE</strong>
-      <span>PREMIUM OFFICIAL STORE</span>
-    </div>
+>
+    
+<div class="brand-text">
+  <strong>PUSAT PENYEDIAAN</strong>
+  <span>ALMAMATER UT</span>
+  <strong>ANAVEL EMPIRE</strong>
+</div>
   </div>
   <div class="kampus-logo">
   <img
