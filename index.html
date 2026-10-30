@@ -312,12 +312,13 @@ let variants = [];
 let cart = [];
 
 function rupiah(n){
- return new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0
- }).format(Number(n || 0);
-}
+function rupiah(n){
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0
+  }).format(Number(n || 0));
+ }
 
 function escapeHTML(value){
  return String(value??"").replace(/[&<>"']/g,function(c){
