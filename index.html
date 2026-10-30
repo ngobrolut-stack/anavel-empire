@@ -236,7 +236,27 @@ section{
 <p>Memuat produk...</p>
 </div>
 </section>
-
+<div id="sizeChartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow:auto;padding:20px;">
+  <div style="max-width:650px;margin:20px auto;background:white;color:#17365d;padding:18px;border-radius:12px;">
+    <button onclick="hideSizeChart()" style="float:right;padding:8px 14px;">TUTUP ✕</button>
+    <h2>SIZE CHART JAS ALMAMATER UT</h2>
+    <img src="https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/produk-anavel/size-chart-jas-ut.jpg" style="width:100%;height:auto;border-radius:8px;">
+    <h3>UKURAN DETAIL</h3>
+    <div style="overflow-x:auto;">
+      <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;text-align:center;">
+        <tr><th>Size</th><th>Panjang</th><th>Lebar Dada</th><th>Lengan</th></tr>
+        <tr><td>S</td><td>70 cm</td><td>108 cm</td><td>58 cm</td></tr>
+        <tr><td>M</td><td>72 cm</td><td>112 cm</td><td>60 cm</td></tr>
+        <tr><td>L</td><td>74 cm</td><td>116 cm</td><td>62 cm</td></tr>
+        <tr><td>XL</td><td>76 cm</td><td>120 cm</td><td>64 cm</td></tr>
+        <tr><td>XXL</td><td>78 cm</td><td>124 cm</td><td>66 cm</td></tr>
+        <tr><td>XXXL</td><td>80 cm</td><td>128 cm</td><td>68 cm</td></tr>
+        <tr><td>XXXXL</td><td>82 cm</td><td>132 cm</td><td>70 cm</td></tr>
+        <tr><td>XXXXXL</td><td>84 cm</td><td>135 cm</td><td>72 cm</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
 <section id="keranjang">
 <div class="heading">
 <h2>KERANJANG BELANJA</h2>
@@ -369,6 +389,7 @@ function renderProducts(){
      alt="${escapeHTML(p.name)}">
     <div class="info">
      <h3>${escapeHTML(p.name)}</h3>
+     ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
      <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
      <div class="price" id="price-${p.id}">${rupiah(p.price)}</div>
      <p class="stock">Stok: ${Number(p.stock||0)}</p>
@@ -579,6 +600,12 @@ function submitOrder(){
   "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),
   "_blank"
  );
+}function showSizeChart(){
+  document.getElementById("sizeChartModal").style.display="block";
+}
+
+function hideSizeChart(){
+  document.getElementById("sizeChartModal").style.display="none";
 }
 async function loadProducts(){
  const area=document.getElementById("products");
