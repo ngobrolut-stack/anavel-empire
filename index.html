@@ -288,7 +288,7 @@ function rupiah(n){
   style: "currency",
   currency: "IDR",
   maximumFractionDigits: 0
- }).format(Number(n || 0));
+ }).format(Number(n || 0) * 1000);
 }
 
 function escapeHTML(value){
