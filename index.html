@@ -105,19 +105,7 @@ style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
 <button class="checkout" onclick="submitOrder()">
 KIRIM PESANAN KE WHATSAPP
 </button>
-  <div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
-
-<h3 style="color:#d6b36a">DATA PEMESAN</h3>
-
-<input id="buyerName" type="text" placeholder="Nama lengkap" style="width:100%;padding:12px;margin:8px 0">
-
-<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" style="width:100%;padding:12px;margin:8px 0">
-
-<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
-
-<button class="checkout" onclick="submitOrder()">KIRIM PESANAN KE WHATSAPP</button>
-
-  </div>
+  
  </div>
 </div>
 </section>
@@ -231,31 +219,7 @@ function renderProducts(){
      <button class="add" onclick="addCart('${p.id}')">
  MASUKKAN KE KERANJANG
 </button>
-<div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
 
-<h3 style="color:#d6b36a">DATA PEMESAN</h3>
-
-<input id="buyerName" type="text" placeholder="Nama lengkap" style="width:100%;padding:12px;margin:8px 0">
-
-<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" style="width:100%;padding:12px;margin:8px 0">
-
-<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
-
-<button class="checkout" onclick="submitOrder()">KIRIM PESANAN KE WHATSAPP</button>
-<div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
-
-<h3 style="color:#d6b36a">DATA PEMESAN</h3>
-
-<input id="buyerName" type="text" placeholder="Nama lengkap" style="width:100%;padding:12px;margin:8px 0">
-
-<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" style="width:100%;padding:12px;margin:8px 0">
-
-<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
-
-<button class="checkout" onclick="submitOrder()">KIRIM PESANAN KE WHATSAPP</button>
-
-</div>
-</div>
 <button class="add"
  style="background:#292929;color:#d6b36a;border:1px solid #c5a66c;margin-top:8px"
  onclick="buyNow('${p.id}')">
@@ -414,24 +378,8 @@ function checkout(){
   form.style.display="block";
   form.scrollIntoView({behavior:"smooth"});
  }
-}{
- if(!cart.length){
-  alert("Keranjang masih kosong!");
-  return;
- }
- let message="Halo ANAVEL EMPIRE, saya ingin memesan:\n\n";
- cart.forEach((p,i)=>{
-  message+=(i+1)+". "+p.name+"\n";
-  Object.entries(p.options).forEach(([k,v])=>{
-   message+="   "+k+": "+v+"\n";
-  });
-  message+="   "+rupiah(p.price)+" x "+p.qty+
-   " = "+rupiah(p.price*p.qty)+"\n\n";
- });
- const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
- message+="Total: "+rupiah(total);
- window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),"_blank");
 }
+
 function submitOrder(){
  const name=document.getElementById("buyerName").value.trim();
  const phone=document.getElementById("buyerPhone").value.trim();
@@ -448,8 +396,8 @@ function submitOrder(){
  }
 
  let total=0;
-
  let message="HALO ANAVEL EMPIRE, SAYA INGIN MEMESAN:\n\n";
+
  message+="DATA PEMESAN\n";
  message+="Nama: "+name+"\n";
  message+="WhatsApp: "+phone+"\n";
@@ -470,11 +418,11 @@ function submitOrder(){
 
  message+="TOTAL: "+rupiah(total);
 
- const admin="628981287802";
- const url="https://wa.me/"+admin+"?text="+encodeURIComponent(message);
-
- window.open(url,"_blank");
-  }
+ window.open(
+  "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),
+  "_blank"
+ );
+}
 async function loadProducts(){
  const area=document.getElementById("products");
  try{
