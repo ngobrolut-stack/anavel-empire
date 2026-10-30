@@ -441,7 +441,7 @@ async function loadProducts(){
   renderProducts();
  }catch(error){
   console.error("Gagal memuat toko:",error);
-  area.innerHTML="<p>Produk belum dapat dimuat. Silakan coba muat ulang halaman.</p>";
+  area.innerHTML="<p>Gagal memuat produk: "+escapeHTML(error.message)+"</p>";
  }
 }
 
