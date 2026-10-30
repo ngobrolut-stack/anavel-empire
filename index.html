@@ -272,10 +272,18 @@ section{
 
 <input id="buyerName" type="text" placeholder="Nama lengkap" required
 style="width:100%;padding:12px;margin:8px 0">
-
+<input id="buyerNim" type="text" placeholder="NIM Universitas Terbuka" required
+style="width:100%;padding:12px;margin:8px 0">
 <input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" required
 style="width:100%;padding:12px;margin:8px 0">
-
+<label style="display:block;margin:12px 0 6px">Upload File e-KTM (Wajib untuk produk yang memakai KTM)</label>
+<input
+  type="file"
+  id="ktmFile"
+  accept=".pdf,.jpg,.jpeg,.png"
+  style="width:100%;padding:12px;margin:8px 0"
+>
+<small>Format PDF, JPG, JPEG, atau PNG. Maksimal 5 MB.</small>
 <textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" required
 style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
 
@@ -558,12 +566,14 @@ function checkout(){
  }
 }
 
-function submitOrder(){
+async function submitOrder(){
  const name=document.getElementById("buyerName").value.trim();
+ const nim=document.getElementById("buyerNim").value.trim();
  const phone=document.getElementById("buyerPhone").value.trim();
  const address=document.getElementById("buyerAddress").value.trim();
+ const ktmFile=document.getElementById("ktmFile").files[0];
 
- if(!name||!phone||!address){
+ if(!name||!nim||!phone||!address){
   alert("Mohon lengkapi semua data pembeli.");
   return;
  }
@@ -572,14 +582,70 @@ function submitOrder(){
   alert("Keranjang masih kosong.");
   return;
  }
+ const perluKTM=cart.some(item=>{
+  const p=products.find(x=>String(x.id)===String(item.id));
+  return (item.name+" "+(p?.description||""))
+    .toLowerCase().includes("ktm");
+});
 
+if(perluKTM && !ktmFile){
+  alert("Mohon upload file e-KTM terlebih dahulu.");
+  document.getElementById("ktmFile").scrollIntoView({behavior:"smooth"});
+  return;
+  }
+let ktmLink="";
+
+if(perluKTM){
+  if(ktmFile.size > 5*1024*1024){
+    alert("Ukuran file maksimal 5 MB.");
+    return;
+  }
+
+  const allowedTypes=[
+    "application/pdf",
+    "image/jpeg",
+    "image/png"
+  ];
+
+  if(!allowedTypes.includes(ktmFile.type)){
+    alert("File harus PDF, JPG, JPEG, atau PNG.");
+    return;
+  }
+
+  const ext=ktmFile.name.split(".").pop().toLowerCase();
+  const filePath=Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
+
+  const {error:uploadError}=await db.storage
+    .from("file-ktm-anavel")
+    .upload(filePath,ktmFile);
+
+  if(uploadError){
+    alert("Gagal upload e-KTM: "+uploadError.message);
+    return;
+  }
+
+  const {data:urlData,error:urlError}=await db.storage
+    .from("file-ktm-anavel")
+    .createSignedUrl(filePath,604800);
+
+  if(urlError){
+    alert("Gagal membuat link e-KTM.");
+    return;
+  }
+
+  ktmLink=urlData.signedUrl;
+}
  let total=0;
  let message="HALO ANAVEL EMPIRE, SAYA INGIN MEMESAN:\n\n";
 
  message+="DATA PEMESAN\n";
  message+="Nama: "+name+"\n";
+ message+="NIM: "+nim+"\n";
  message+="WhatsApp: "+phone+"\n";
  message+="Alamat: "+address+"\n\n";
+ if(ktmLink){
+  message+="Link File e-KTM: "+ktmLink+"\n";
+ }
  message+="DETAIL PESANAN\n";
 
  cart.forEach((item,i)=>{
