@@ -3,7 +3,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ANAVEL EMPIRE | Official Store</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -14,34 +14,37 @@ header{padding:20px 6%;display:flex;justify-content:space-between;align-items:ce
 header span{font-size:12px;color:#aaa}
 nav{background:#191919;padding:14px;text-align:center}
 nav a{color:white;text-decoration:none;margin:0 13px;font-size:13px}
-.hero{padding:75px 6%;text-align:center;background:linear-gradient(120deg,#171717,#382d1c,#111)}
-.hero h1{font-size:38px;letter-spacing:5px;margin-bottom:15px}
+.hero{padding:65px 6%;text-align:center;background:linear-gradient(120deg,#171717,#382d1c,#111)}
+.hero h1{font-size:36px;letter-spacing:5px;margin-bottom:15px}
 .hero p{color:#ddd;margin-bottom:25px}
-.btn{display:inline-block;background:#c5a66c;color:#111;padding:13px 25px;border-radius:5px;text-decoration:none;font-weight:bold;border:0}
-section{padding:45px 6%}
-.heading{text-align:center;margin-bottom:30px}
+.btn{display:inline-block;background:#c5a66c;color:#111;padding:13px 25px;border-radius:5px;text-decoration:none;font-weight:bold}
+section{padding:40px 6%}
+.heading{text-align:center;margin-bottom:28px}
 .heading h2{letter-spacing:3px;font-size:24px}
 .heading p{color:#888;font-size:13px;margin-top:10px}
-.search{width:100%;padding:14px;background:#202020;border:1px solid #444;color:white;border-radius:5px;margin-bottom:25px}
+.search{width:100%;padding:14px;background:#202020;border:1px solid #444;color:white;border-radius:5px;margin-bottom:22px}
 .products{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .card{background:#1b1b1b;border:1px solid #333;border-radius:8px;overflow:hidden}
 .card img{width:100%;height:190px;object-fit:cover;background:#292929}
 .info{padding:15px}
-.info h3{font-size:15px;margin-bottom:8px}
-.price{color:#d6b36a;font-weight:bold;margin-bottom:12px}
-.info button{width:100%;padding:11px;background:#c5a66c;border:0;border-radius:4px;font-weight:bold}
+.info h3{font-size:16px;margin-bottom:8px}
+.price{color:#d6b36a;font-weight:bold;margin:12px 0}
+.stock{color:#999;font-size:12px;margin-bottom:12px}
+.description{color:#bbb;font-size:12px;line-height:1.5;margin-bottom:12px}
+.option{margin:12px 0}
+.option label{display:block;font-size:12px;color:#d6b36a;margin-bottom:6px}
+.option select{width:100%;padding:11px;background:#292929;color:white;border:1px solid #555;border-radius:4px}
+.add{width:100%;padding:12px;background:#c5a66c;border:0;border-radius:4px;font-weight:bold;cursor:pointer;margin-top:10px}
 .cart{background:#1a1a1a;padding:22px;border:1px solid #444;border-radius:8px}
-.cart-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #333;gap:10px}
-.cart button{cursor:pointer}
-.checkout{width:100%;margin-top:20px;padding:14px;background:#c5a66c;border:0;font-weight:bold;border-radius:5px}
+.cart-item{padding:13px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;gap:10px}
+.cart-item small{display:block;color:#aaa;margin-top:5px;line-height:1.6}
+.remove{background:#9b3030;color:white;border:0;padding:7px;border-radius:3px}
+.qty{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty button{padding:4px 9px}
+.checkout{width:100%;margin-top:20px;padding:14px;background:#c5a66c;border:0;font-weight:bold;border-radius:5px;cursor:pointer}
 footer{text-align:center;padding:30px;background:#080808;color:#888;font-size:12px}
-@media(max-width:650px){
-.products{grid-template-columns:repeat(2,1fr);gap:10px}
-.card img{height:145px}
-.info{padding:10px}
-.hero h1{font-size:27px}
-nav a{margin:0 6px;font-size:11px}
-}
+@media(max-width:750px){.products{grid-template-columns:repeat(2,1fr);gap:10px}.card img{height:145px}.info{padding:10px}.hero h1{font-size:27px}nav a{margin:0 6px;font-size:11px}}
+@media(max-width:380px){.products{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -49,7 +52,7 @@ nav a{margin:0 6px;font-size:11px}
 <header>
 <div>
 <div class="logo">ANAVEL EMPIRE</div>
-<span>OFFICIAL FASHION STORE</span>
+<span>OFFICIAL STORE</span>
 </div>
 <div>🛍️ STORE</div>
 </header>
@@ -71,9 +74,7 @@ nav a{margin:0 6px;font-size:11px}
 <h2>OUR COLLECTION</h2>
 <p>Temukan koleksi terbaik dari ANAVEL EMPIRE</p>
 </div>
-
 <input class="search" id="search" placeholder="Cari produk..." oninput="renderProducts()">
-
 <div class="products" id="products">
 <p>Memuat produk...</p>
 </div>
@@ -82,7 +83,7 @@ nav a{margin:0 6px;font-size:11px}
 <section id="keranjang">
 <div class="heading">
 <h2>KERANJANG BELANJA</h2>
-<p>Periksa pesanan sebelum checkout</p>
+<p>Periksa pilihan produk sebelum checkout</p>
 </div>
 <div class="cart">
 <div id="cartItems">Keranjang masih kosong.</div>
@@ -98,126 +99,241 @@ nav a{margin:0 6px;font-size:11px}
 </footer>
 
 <script>
-// KONFIGURASI SUPABASE
 const SUPABASE_URL = "https://tqvzxaywnnzftqsmcuxk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_dBbqDylg4g-JkVrI8xE7vg_kxnvMLfE";
-
-// GANTI DENGAN NOMOR WHATSAPP TOKO
 const WHATSAPP = "628981287802";
 
-let db = null;
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let products = [];
+let variants = [];
 let cart = [];
 
-const demoProducts = [
-{name:"Premium Oversize T-Shirt",price:95000,stock:20,image_url:""},
-{name:"Premium Hoodie",price:175000,stock:10,image_url:""},
-{name:"Baggy Jeans",price:150000,stock:15,image_url:""},
-{name:"Premium Sweater",price:135000,stock:12,image_url:""}
-];
-
-async function loadProducts(){
-try{
-if(SUPABASE_URL.startsWith("https://") &&
-!SUPABASE_KEY.includes("MASUKKAN")){
-db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const {data,error}=await db.from("products")
-.select("*").eq("is_active",true);
-if(error) throw error;
-products=data || [];
-}else{
-products=demoProducts;
-}
-}catch(error){
-console.log("Database:",error.message);
-products=demoProducts;
-}
-renderProducts();
-}
-
 function rupiah(n){
-return "Rp"+Number(n).toLocaleString("id-ID");
+ return "Rp"+Number(n||0).toLocaleString("id-ID");
+}
+
+function escapeHTML(value){
+ return String(value??"").replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+ });
+}
+
+function optionLabel(type){
+ const labels={
+  ukuran:"Pilih Ukuran",
+  warna:"Pilih Warna Lanyard",
+  background:"Pilih Background KTM"
+ };
+ return labels[type]||("Pilih "+type);
+}
+
+function getProductVariants(productId){
+ return variants.filter(v=>String(v.product_id)===String(productId)&&v.is_active!==false);
+}
+
+function groupedVariants(productId){
+ const result={};
+ getProductVariants(productId).forEach(v=>{
+  if(!result[v.option_type])result[v.option_type]=[];
+  result[v.option_type].push(v);
+ });
+ return result;
+}
+
+function selectedOptions(card){
+ const result={};
+ card.querySelectorAll("select[data-option]").forEach(select=>{
+  result[select.dataset.option]=select.value;
+ });
+ return result;
+}
+
+function selectedPrice(product,options){
+ const size=variants.find(v=>
+  String(v.product_id)===String(product.id)&&
+  v.option_type==="ukuran"&&
+  v.option_value===options.ukuran
+ );
+ return size?Number(size.price):Number(product.price);
 }
 
 function renderProducts(){
-const keyword=document.getElementById("search").value.toLowerCase();
-const filtered=products.filter(p=>
-(p.name||"").toLowerCase().includes(keyword)
-);
-const area=document.getElementById("products");
+ const keyword=document.getElementById("search").value.toLowerCase();
+ const area=document.getElementById("products");
+ const filtered=products.filter(p=>
+  (p.name||"").toLowerCase().includes(keyword)
+ );
+ if(!filtered.length){
+  area.innerHTML="<p>Produk belum tersedia.</p>";
+  return;
+ }
 
-if(!filtered.length){
-area.innerHTML="<p>Produk belum tersedia.</p>";
-return;
+ area.innerHTML=filtered.map(p=>{
+  const groups=groupedVariants(p.id);
+  const optionHTML=Object.keys(groups).map(type=>{
+   const choices=groups[type];
+   return `
+    <div class="option">
+     <label>${escapeHTML(optionLabel(type))}</label>
+     <select data-option="${escapeHTML(type)}" onchange="updateCardPrice('${p.id}')">
+      ${choices.map(v=>`
+       <option value="${escapeHTML(v.option_value)}">
+        ${escapeHTML(v.option_value)}
+       </option>`).join("")}
+     </select>
+    </div>`;
+  }).join("");
+
+  return `
+   <div class="card" id="card-${p.id}">
+    <img src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
+     alt="${escapeHTML(p.name)}">
+    <div class="info">
+     <h3>${escapeHTML(p.name)}</h3>
+     <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
+     <div class="price" id="price-${p.id}">${rupiah(p.price)}</div>
+     <p class="stock">Stok: ${Number(p.stock||0)}</p>
+     ${optionHTML}
+     <button class="add" onclick="addCart('${p.id}')">TAMBAH KE KERANJANG</button>
+    </div>
+   </div>`;
+ }).join("");
 }
 
-area.innerHTML=filtered.map(p=>`
-<div class="card">
-<img src="${p.image_url || 'https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE'}"
-alt="${p.name}">
-<div class="info">
-<h3>${p.name}</h3>
-<div class="price">${rupiah(p.price)}</div>
-<p style="color:#999;font-size:12px;margin-bottom:12px">Stok: ${p.stock ?? 0}</p>
-<button onclick="addCart('${p.id ?? p.name}')">TAMBAH KE KERANJANG</button>
-</div>
-</div>`).join("");
+function updateCardPrice(productId){
+ const product=products.find(p=>String(p.id)===String(productId));
+ const card=document.getElementById("card-"+productId);
+ if(!product||!card)return;
+ const options=selectedOptions(card);
+ document.getElementById("price-"+productId).innerText=
+  rupiah(selectedPrice(product,options));
 }
 
-function addCart(id){
-const product=products.find(p=>String(p.id ?? p.name)===String(id));
-if(!product)return;
-if(product.stock!==undefined && product.stock<1){
-alert("Maaf, stok habis.");
-return;
-}
-const existing=cart.find(p=>p.name===product.name);
-if(existing) existing.qty++;
-else cart.push({...product,qty:1});
-renderCart();
-alert("Produk berhasil ditambahkan!");
+function addCart(productId){
+ const product=products.find(p=>String(p.id)===String(productId));
+ const card=document.getElementById("card-"+productId);
+ if(!product||!card)return;
+
+ const options=selectedOptions(card);
+ const price=selectedPrice(product,options);
+ const stock=Number(product.stock||0);
+
+ if(stock<1){
+  alert("Maaf, stok produk habis.");
+  return;
+ }
+
+ const optionText=Object.entries(options).map(([k,v])=>k+": "+v).join(" | ");
+ const key=String(product.id)+"|"+optionText;
+ const existing=cart.find(item=>item.key===key);
+
+ if(existing){
+  if(existing.qty>=stock){
+   alert("Jumlah melebihi stok produk.");
+   return;
+  }
+  existing.qty++;
+ }else{
+  cart.push({
+   key:key,
+   id:product.id,
+   name:product.name,
+   price:price,
+   options:options,
+   qty:1,
+   stock:stock
+  });
+ }
+ renderCart();
+ alert("Produk berhasil ditambahkan!");
 }
 
 function renderCart(){
-const area=document.getElementById("cartItems");
-if(!cart.length){
-area.innerHTML="Keranjang masih kosong.";
-}else{
-area.innerHTML=cart.map((p,i)=>`
-<div class="cart-item">
-<div>${p.name}<br>
-<small>${rupiah(p.price)} x ${p.qty}</small></div>
-<button onclick="removeCart(${i})"
-style="background:#9b3030;color:white;border:0;padding:7px">Hapus</button>
-</div>`).join("");
-}
-const total=cart.reduce((sum,p)=>sum+p.price*p.qty,0);
-document.getElementById("total").innerText="Total: "+rupiah(total);
+ const area=document.getElementById("cartItems");
+ if(!cart.length){
+  area.innerHTML="Keranjang masih kosong.";
+ }else{
+  area.innerHTML=cart.map((p,i)=>`
+   <div class="cart-item">
+    <div>
+     <strong>${escapeHTML(p.name)}</strong>
+     <small>
+      ${Object.entries(p.options).map(([k,v])=>escapeHTML(k)+": "+escapeHTML(v)).join("<br>")}
+      <br>${rupiah(p.price)} x ${p.qty}
+     </small>
+     <div class="qty">
+      <button onclick="changeQty(${i},-1)">−</button>
+      <span>${p.qty}</span>
+      <button onclick="changeQty(${i},1)">+</button>
+     </div>
+    </div>
+    <button class="remove" onclick="removeCart(${i})">Hapus</button>
+   </div>`).join("");
+ }
+ const total=cart.reduce((sum,p)=>sum+p.price*p.qty,0);
+ document.getElementById("total").innerText="Total: "+rupiah(total);
 }
 
-function removeCart(i){
-cart.splice(i,1);
-renderCart();
+function changeQty(index,change){
+ const item=cart[index];
+ if(!item)return;
+ const next=item.qty+change;
+ if(next<1){
+  removeCart(index);
+  return;
+ }
+ if(next>item.stock){
+  alert("Jumlah melebihi stok produk.");
+  return;
+ }
+ item.qty=next;
+ renderCart();
+}
+
+function removeCart(index){
+ cart.splice(index,1);
+ renderCart();
 }
 
 function checkout(){
-if(!cart.length){
-alert("Keranjang masih kosong!");
-return;
+ if(!cart.length){
+  alert("Keranjang masih kosong!");
+  return;
+ }
+ let message="Halo ANAVEL EMPIRE, saya ingin memesan:\n\n";
+ cart.forEach((p,i)=>{
+  message+=(i+1)+". "+p.name+"\n";
+  Object.entries(p.options).forEach(([k,v])=>{
+   message+="   "+k+": "+v+"\n";
+  });
+  message+="   "+rupiah(p.price)+" x "+p.qty+
+   " = "+rupiah(p.price*p.qty)+"\n\n";
+ });
+ const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+ message+="Total: "+rupiah(total);
+ window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),"_blank");
 }
-if(WHATSAPP==="628xxxxxxxxxx"){
-alert("Atur nomor WhatsApp toko terlebih dahulu.");
-return;
-}
-let message="Halo ANAVEL EMPIRE, saya ingin memesan:%0A%0A";
-cart.forEach((p,i)=>{
-message+=(i+1)+". "+p.name+" x "+p.qty+
-" = "+rupiah(p.price*p.qty)+"%0A";
-});
-const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
-message+="%0ATotal: "+rupiah(total);
-window.open("https://wa.me/"+WHATSAPP+"?text="+
-encodeURIComponent(message)," _blank");
+
+async function loadProducts(){
+ const area=document.getElementById("products");
+ try{
+  const productResult=await db.from("products")
+   .select("*").eq("is_active",true).order("created_at",{ascending:false});
+  if(productResult.error)throw productResult.error;
+  products=productResult.data||[];
+
+  if(products.length){
+   const ids=products.map(p=>p.id);
+   const variantResult=await db.from("product_variants")
+    .select("*").in("product_id",ids).eq("is_active",true);
+   if(variantResult.error)throw variantResult.error;
+   variants=variantResult.data||[];
+  }
+  renderProducts();
+ }catch(error){
+  console.error("Gagal memuat toko:",error);
+  area.innerHTML="<p>Produk belum dapat dimuat. Silakan coba muat ulang halaman.</p>";
+ }
 }
 
 loadProducts();
