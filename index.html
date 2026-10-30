@@ -458,6 +458,42 @@ header {
         object-fit: contain !important;
     }
 }
+ /* HERO BANNER ANAVEL EMPIRE */
+.hero {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  align-items: center !important;
+  gap: 25px !important;
+  padding: 35px 25px !important;
+  min-height: 400px;
+  text-align: left !important;
+}
+
+.hero img {
+  width: 100% !important;
+  max-height: 430px;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+.hero h1 {
+  font-size: 36px !important;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+  }
+
+  .hero img {
+    max-height: 350px;
+  }
+
+  .hero h1 {
+    font-size: 28px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -495,10 +531,27 @@ header {
 
 
 <div class="hero" id="home">
-  <h1>ANAVEL EMPIRE</h1>
-  <p>Your Style, Your Identity.</p>
-  <p>Fashion, UT Collection &amp; Premium Accessories.</p>
-  <a href="#produk" class="btn">EXPLORE COLLECTION</a>
+
+  <div>
+    <h1>ANAVEL EMPIRE</h1>
+
+    <p>Your Style, Your Identity.</p>
+
+    <p>
+      Pusat Penyediaan Almamater UT,
+      Fashion & Premium Accessories.
+    </p>
+
+    <a href="#produk" class="btn">
+      BELANJA SEKARANG
+    </a>
+  </div>
+
+  <img
+    src="https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/file_0000000092e071faa9250aecd67a0066.png"
+    alt="Koleksi Jas Almamater Universitas Terbuka"
+  >
+
 </div>
 
 <section id="produk">
