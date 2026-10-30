@@ -89,6 +89,23 @@ footer{text-align:center;padding:30px;background:#080808;color:#888;font-size:12
 <div id="cartItems">Keranjang masih kosong.</div>
 <h3 id="total" style="margin-top:20px;color:#d6b36a">Total: Rp0</h3>
 <button class="checkout" onclick="checkout()">CHECKOUT VIA WHATSAPP</button>
+ <div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
+
+<h3 style="color:#d6b36a">DATA PEMESAN</h3>
+
+<input id="buyerName" type="text" placeholder="Nama lengkap" required
+style="width:100%;padding:12px;margin:8px 0">
+
+<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" required
+style="width:100%;padding:12px;margin:8px 0">
+
+<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" required
+style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
+
+<button class="checkout" onclick="submitOrder()">
+KIRIM PESANAN KE WHATSAPP
+</button>
+ </div>
 </div>
 </section>
 
@@ -198,7 +215,15 @@ function renderProducts(){
      <div class="price" id="price-${p.id}">${rupiah(p.price)}</div>
      <p class="stock">Stok: ${Number(p.stock||0)}</p>
      ${optionHTML}
-     <button class="add" onclick="addCart('${p.id}')">TAMBAH KE KERANJANG</button>
+     <button class="add" onclick="addCart('${p.id}')">
+ MASUKKAN KE KERANJANG
+</button>
+
+<button class="add"
+ style="background:#292929;color:#d6b36a;border:1px solid #c5a66c;margin-top:8px"
+ onclick="buyNow('${p.id}')">
+ BELI SEKARANG
+</button>
     </div>
    </div>`;
  }).join("");
@@ -211,6 +236,47 @@ function updateCardPrice(productId){
  const options=selectedOptions(card);
  document.getElementById("price-"+productId).innerText=
   rupiah(selectedPrice(product,options));
+}
+
+function buyNow(productId){
+ const product=products.find(p=>String(p.id)===String(productId));
+ const card=document.getElementById("card-"+productId);
+
+ if(!product||!card)return;
+
+ const options=selectedOptions(card);
+ const price=selectedPrice(product,options);
+
+ if(Number(product.stock||0)<1){
+  alert("Maaf, stok produk habis.");
+  return;
+ }
+
+ const optionText=Object.entries(options)
+  .map(([k,v])=>k+": "+v).join(" | ");
+
+ const key=String(product.id)+"|"+optionText;
+
+ const existing=cart.find(item=>item.key===key);
+
+ if(existing){
+  existing.qty=1;
+ }else{
+  cart=[{
+   key:key,
+   id:product.id,
+   name:product.name,
+   price:price,
+   options:options,
+   qty:1,
+   stock:Number(product.stock||0)
+  }];
+ }
+
+ renderCart();
+ document.getElementById("keranjang").scrollIntoView({
+  behavior:"smooth"
+ });
 }
 
 function addCart(productId){
@@ -300,6 +366,18 @@ function removeCart(index){
 }
 
 function checkout(){
+ if(cart.length===0){
+  alert("Keranjang masih kosong.");
+  return;
+ }
+
+ const form=document.getElementById("customerForm");
+
+ if(form){
+  form.style.display="block";
+  form.scrollIntoView({behavior:"smooth"});
+ }
+}{
  if(!cart.length){
   alert("Keranjang masih kosong!");
   return;
@@ -317,7 +395,49 @@ function checkout(){
  message+="Total: "+rupiah(total);
  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),"_blank");
 }
+function submitOrder(){
+ const name=document.getElementById("buyerName").value.trim();
+ const phone=document.getElementById("buyerPhone").value.trim();
+ const address=document.getElementById("buyerAddress").value.trim();
 
+ if(!name||!phone||!address){
+  alert("Mohon lengkapi semua data pembeli.");
+  return;
+ }
+
+ if(cart.length===0){
+  alert("Keranjang masih kosong.");
+  return;
+ }
+
+ let total=0;
+
+ let message="HALO ANAVEL EMPIRE, SAYA INGIN MEMESAN:\n\n";
+ message+="DATA PEMESAN\n";
+ message+="Nama: "+name+"\n";
+ message+="WhatsApp: "+phone+"\n";
+ message+="Alamat: "+address+"\n\n";
+ message+="DETAIL PESANAN\n";
+
+ cart.forEach((item,i)=>{
+  const subtotal=item.price*item.qty;
+  total+=subtotal;
+
+  message+=(i+1)+". "+item.name+"\n";
+  message+="Pilihan: "+Object.entries(item.options||{})
+   .map(([k,v])=>k+": "+v).join(", ")+"\n";
+  message+="Jumlah: "+item.qty+"\n";
+  message+="Harga: "+rupiah(item.price)+"\n";
+  message+="Subtotal: "+rupiah(subtotal)+"\n\n";
+ });
+
+ message+="TOTAL: "+rupiah(total);
+
+ const admin="628981287802";
+ const url="https://wa.me/"+admin+"?text="+encodeURIComponent(message);
+
+ window.open(url,"_blank");
+  }
 async function loadProducts(){
  const area=document.getElementById("products");
  try{
