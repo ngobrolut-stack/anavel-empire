@@ -5,96 +5,222 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANAVEL EMPIRE | Official Store</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f8f7f4;color:#171717}
-header{background:#111;color:white;padding:20px 6%;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:bold;letter-spacing:3px}
-header span{font-size:13px;color:#d7bd82}
-nav{background:#222;color:white;text-align:center;padding:13px;font-size:13px;letter-spacing:2px}
-.hero{background:linear-gradient(120deg,#171717,#45413a);color:white;padding:75px 8%;text-align:center}
+body{font-family:Arial,sans-serif;background:#101010;color:#fff}
+header{padding:20px 6%;display:flex;justify-content:space-between;align-items:center;background:#080808;border-bottom:1px solid #333}
+.logo{font-size:22px;font-weight:bold;letter-spacing:3px;color:#d6b36a}
+header span{font-size:12px;color:#aaa}
+nav{background:#191919;padding:14px;text-align:center}
+nav a{color:white;text-decoration:none;margin:0 13px;font-size:13px}
+.hero{padding:75px 6%;text-align:center;background:linear-gradient(120deg,#171717,#382d1c,#111)}
 .hero h1{font-size:38px;letter-spacing:5px;margin-bottom:15px}
 .hero p{color:#ddd;margin-bottom:25px}
-.hero a{display:inline-block;background:#c5a66c;color:#111;padding:13px 28px;text-decoration:none;font-weight:bold}
+.btn{display:inline-block;background:#c5a66c;color:#111;padding:13px 25px;border-radius:5px;text-decoration:none;font-weight:bold;border:0}
 section{padding:45px 6%}
 .heading{text-align:center;margin-bottom:30px}
 .heading h2{letter-spacing:3px;font-size:24px}
-.heading p{color:#777;font-size:13px;margin-top:8px}
-.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.product{background:white;padding:12px;border:1px solid #eee}
-.product img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eee}
-.product h3{font-size:15px;margin:12px 0 7px}
-.price{color:#a17c3d;font-weight:bold}
-.product button{width:100%;padding:11px;margin-top:12px;background:#171717;color:white;border:0}
-.about{background:#eeeae2;text-align:center;line-height:1.8}
-.about h2{letter-spacing:3px;margin-bottom:15px}
-footer{background:#111;color:white;text-align:center;padding:30px 15px;font-size:12px;line-height:2}
-@media(min-width:700px){.products{grid-template-columns:repeat(4,1fr)}.hero h1{font-size:55px}}
+.heading p{color:#888;font-size:13px;margin-top:10px}
+.search{width:100%;padding:14px;background:#202020;border:1px solid #444;color:white;border-radius:5px;margin-bottom:25px}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:#1b1b1b;border:1px solid #333;border-radius:8px;overflow:hidden}
+.card img{width:100%;height:190px;object-fit:cover;background:#292929}
+.info{padding:15px}
+.info h3{font-size:15px;margin-bottom:8px}
+.price{color:#d6b36a;font-weight:bold;margin-bottom:12px}
+.info button{width:100%;padding:11px;background:#c5a66c;border:0;border-radius:4px;font-weight:bold}
+.cart{background:#1a1a1a;padding:22px;border:1px solid #444;border-radius:8px}
+.cart-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #333;gap:10px}
+.cart button{cursor:pointer}
+.checkout{width:100%;margin-top:20px;padding:14px;background:#c5a66c;border:0;font-weight:bold;border-radius:5px}
+footer{text-align:center;padding:30px;background:#080808;color:#888;font-size:12px}
+@media(max-width:650px){
+.products{grid-template-columns:repeat(2,1fr);gap:10px}
+.card img{height:145px}
+.info{padding:10px}
+.hero h1{font-size:27px}
+nav a{margin:0 6px;font-size:11px}
+}
 </style>
 </head>
 <body>
 
 <header>
+<div>
 <div class="logo">ANAVEL EMPIRE</div>
-<span>OFFICIAL STORE</span>
+<span>OFFICIAL FASHION STORE</span>
+</div>
+<div>🛍️ STORE</div>
 </header>
 
-<nav>HOME &nbsp; | &nbsp; COLLECTION &nbsp; | &nbsp; ABOUT</nav>
+<nav>
+<a href="#home">HOME</a>
+<a href="#produk">PRODUK</a>
+<a href="#keranjang">KERANJANG</a>
+</nav>
 
-<div class="hero">
+<div class="hero" id="home">
 <h1>ANAVEL EMPIRE</h1>
-<p>Elegance in Every Detail.</p>
-<a href="#collection">EXPLORE COLLECTION</a>
+<p>Discover Your Style. Define Your Identity.</p>
+<a href="#produk" class="btn">BELANJA SEKARANG</a>
 </div>
 
-<section id="collection">
+<section id="produk">
 <div class="heading">
 <h2>OUR COLLECTION</h2>
-<p>Discover Your Style With Us</p>
+<p>Temukan koleksi terbaik dari ANAVEL EMPIRE</p>
 </div>
 
-<div class="products">
-<div class="product">
-<img src="https://placehold.co/500x500/ddd/333?text=Product+01" alt="Produk 1">
-<h3>Premium Collection 01</h3>
-<p class="price">Rp 150.000</p>
-<button onclick="alert('Katalog produk segera tersedia!')">LIHAT PRODUK</button>
-</div>
+<input class="search" id="search" placeholder="Cari produk..." oninput="renderProducts()">
 
-<div class="product">
-<img src="https://placehold.co/500x500/e5e0d8/333?text=Product+02" alt="Produk 2">
-<h3>Premium Collection 02</h3>
-<p class="price">Rp 175.000</p>
-<button onclick="alert('Katalog produk segera tersedia!')">LIHAT PRODUK</button>
-</div>
-
-<div class="product">
-<img src="https://placehold.co/500x500/d8d8d8/333?text=Product+03" alt="Produk 3">
-<h3>Premium Collection 03</h3>
-<p class="price">Rp 125.000</p>
-<button onclick="alert('Katalog produk segera tersedia!')">LIHAT PRODUK</button>
-</div>
-
-<div class="product">
-<img src="https://placehold.co/500x500/cfc8bd/333?text=Product+04" alt="Produk 4">
-<h3>Premium Collection 04</h3>
-<p class="price">Rp 200.000</p>
-<button onclick="alert('Katalog produk segera tersedia!')">LIHAT PRODUK</button>
-</div>
+<div class="products" id="products">
+<p>Memuat produk...</p>
 </div>
 </section>
 
-<section class="about">
-<h2>ABOUT ANAVEL EMPIRE</h2>
-<p>ANAVEL EMPIRE menghadirkan pilihan produk dengan karakter elegan, modern, dan berkualitas.</p>
-<p>Style • Quality • Identity</p>
+<section id="keranjang">
+<div class="heading">
+<h2>KERANJANG BELANJA</h2>
+<p>Periksa pesanan sebelum checkout</p>
+</div>
+<div class="cart">
+<div id="cartItems">Keranjang masih kosong.</div>
+<h3 id="total" style="margin-top:20px;color:#d6b36a">Total: Rp0</h3>
+<button class="checkout" onclick="checkout()">CHECKOUT VIA WHATSAPP</button>
+</div>
 </section>
 
 <footer>
-<h3>ANAVEL EMPIRE</h3>
-<p>Elegance in Every Detail.</p>
-<p>© 2026 ANAVEL EMPIRE. All Rights Reserved.</p>
+<h3 style="color:#d6b36a;letter-spacing:3px">ANAVEL EMPIRE</h3>
+<p style="margin-top:10px">Official Store | Premium Fashion</p>
+<p style="margin-top:8px">© 2026 ANAVEL EMPIRE. All Rights Reserved.</p>
 </footer>
 
+<script>
+// KONFIGURASI SUPABASE
+const SUPABASE_URL = "MASUKKAN_API_URL";
+const SUPABASE_KEY = "MASUKKAN_PUBLISHABLE_KEY";
+
+// GANTI DENGAN NOMOR WHATSAPP TOKO
+const WHATSAPP = "628xxxxxxxxxx";
+
+let db = null;
+let products = [];
+let cart = [];
+
+const demoProducts = [
+{name:"Premium Oversize T-Shirt",price:95000,stock:20,image_url:""},
+{name:"Premium Hoodie",price:175000,stock:10,image_url:""},
+{name:"Baggy Jeans",price:150000,stock:15,image_url:""},
+{name:"Premium Sweater",price:135000,stock:12,image_url:""}
+];
+
+async function loadProducts(){
+try{
+if(SUPABASE_URL.startsWith("https://") &&
+!SUPABASE_KEY.includes("MASUKKAN")){
+db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const {data,error}=await db.from("products")
+.select("*").eq("is_active",true);
+if(error) throw error;
+products=data || [];
+}else{
+products=demoProducts;
+}
+}catch(error){
+console.log("Database:",error.message);
+products=demoProducts;
+}
+renderProducts();
+}
+
+function rupiah(n){
+return "Rp"+Number(n).toLocaleString("id-ID");
+}
+
+function renderProducts(){
+const keyword=document.getElementById("search").value.toLowerCase();
+const filtered=products.filter(p=>
+(p.name||"").toLowerCase().includes(keyword)
+);
+const area=document.getElementById("products");
+
+if(!filtered.length){
+area.innerHTML="<p>Produk belum tersedia.</p>";
+return;
+}
+
+area.innerHTML=filtered.map(p=>`
+<div class="card">
+<img src="${p.image_url || 'https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE'}"
+alt="${p.name}">
+<div class="info">
+<h3>${p.name}</h3>
+<div class="price">${rupiah(p.price)}</div>
+<p style="color:#999;font-size:12px;margin-bottom:12px">Stok: ${p.stock ?? 0}</p>
+<button onclick="addCart('${p.id ?? p.name}')">TAMBAH KE KERANJANG</button>
+</div>
+</div>`).join("");
+}
+
+function addCart(id){
+const product=products.find(p=>String(p.id ?? p.name)===String(id));
+if(!product)return;
+if(product.stock!==undefined && product.stock<1){
+alert("Maaf, stok habis.");
+return;
+}
+const existing=cart.find(p=>p.name===product.name);
+if(existing) existing.qty++;
+else cart.push({...product,qty:1});
+renderCart();
+alert("Produk berhasil ditambahkan!");
+}
+
+function renderCart(){
+const area=document.getElementById("cartItems");
+if(!cart.length){
+area.innerHTML="Keranjang masih kosong.";
+}else{
+area.innerHTML=cart.map((p,i)=>`
+<div class="cart-item">
+<div>${p.name}<br>
+<small>${rupiah(p.price)} x ${p.qty}</small></div>
+<button onclick="removeCart(${i})"
+style="background:#9b3030;color:white;border:0;padding:7px">Hapus</button>
+</div>`).join("");
+}
+const total=cart.reduce((sum,p)=>sum+p.price*p.qty,0);
+document.getElementById("total").innerText="Total: "+rupiah(total);
+}
+
+function removeCart(i){
+cart.splice(i,1);
+renderCart();
+}
+
+function checkout(){
+if(!cart.length){
+alert("Keranjang masih kosong!");
+return;
+}
+if(WHATSAPP==="628xxxxxxxxxx"){
+alert("Atur nomor WhatsApp toko terlebih dahulu.");
+return;
+}
+let message="Halo ANAVEL EMPIRE, saya ingin memesan:%0A%0A";
+cart.forEach((p,i)=>{
+message+=(i+1)+". "+p.name+" x "+p.qty+
+" = "+rupiah(p.price*p.qty)+"%0A";
+});
+const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+message+="%0ATotal: "+rupiah(total);
+window.open("https://wa.me/"+WHATSAPP+"?text="+
+encodeURIComponent(message)," _blank");
+}
+
+loadProducts();
+</script>
 </body>
 </html>
