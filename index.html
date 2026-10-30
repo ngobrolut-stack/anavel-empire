@@ -644,8 +644,10 @@ if(perluKTM){
  message+="WhatsApp: "+phone+"\n";
  message+="Alamat: "+address+"\n\n";
  if(ktmLink){
-  message+="Link File e-KTM: "+ktmLink+"\n";
- }
+  message+="\nFILE E-KTM:\n";
+  message+="📎 Klik tautan berikut untuk melihat file e-KTM:\n";
+  message+=ktmLink+"\n";
+}
  message+="DETAIL PESANAN\n";
 
  cart.forEach((item,i)=>{
