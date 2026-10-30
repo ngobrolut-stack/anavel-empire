@@ -231,7 +231,31 @@ function renderProducts(){
      <button class="add" onclick="addCart('${p.id}')">
  MASUKKAN KE KERANJANG
 </button>
+<div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
 
+<h3 style="color:#d6b36a">DATA PEMESAN</h3>
+
+<input id="buyerName" type="text" placeholder="Nama lengkap" style="width:100%;padding:12px;margin:8px 0">
+
+<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" style="width:100%;padding:12px;margin:8px 0">
+
+<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
+
+<button class="checkout" onclick="submitOrder()">KIRIM PESANAN KE WHATSAPP</button>
+<div id="customerForm" style="display:none;margin-top:20px;padding:15px;background:#171717;border:1px solid #c5a66c;border-radius:10px">
+
+<h3 style="color:#d6b36a">DATA PEMESAN</h3>
+
+<input id="buyerName" type="text" placeholder="Nama lengkap" style="width:100%;padding:12px;margin:8px 0">
+
+<input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" style="width:100%;padding:12px;margin:8px 0">
+
+<textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
+
+<button class="checkout" onclick="submitOrder()">KIRIM PESANAN KE WHATSAPP</button>
+
+</div>
+</div>
 <button class="add"
  style="background:#292929;color:#d6b36a;border:1px solid #c5a66c;margin-top:8px"
  onclick="buyNow('${p.id}')">
