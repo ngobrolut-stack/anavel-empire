@@ -654,6 +654,10 @@ header {
 </div>
 </section>
 <div id="sizeChartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow:auto;padding:20px;">
+ <section id="detailProduk" style="display:none;">
+  <button onclick="tutupDetail()">← Kembali ke Produk</button>
+  <div id="isiDetailProduk"></div>
+ </section>
   <div style="max-width:650px;margin:20px auto;background:white;color:#17365d;padding:18px;border-radius:12px;">
     <button onclick="hideSizeChart()" style="float:right;padding:8px 14px;">TUTUP ✕</button>
     <h2>SIZE CHART JAS ALMAMATER UT</h2>
@@ -830,7 +834,9 @@ function renderProducts(){
      <h3>${escapeHTML(p.name)}</h3>
      ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
      <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
-     <div class="price" id="price-${p.id}">${rupiah(p.price)}</div>
+     <div class="price" id="price-${p.id}">
+  ${Number(p.original_price)>Number(p.price) ? `<del style="color:#888;font-size:13px;">${rupiah(p.original_price)}</del><br><strong style="color:#d32f2f;">${rupiah(p.price)}</strong>` : rupiah(p.price)}
+</div>
      <p class="stock">Stok: ${Number(p.stock||0)}</p>
      ${optionHTML}
      <button class="add" onclick="addCart('${p.id}')">
@@ -852,8 +858,13 @@ function updateCardPrice(productId){
  const card=document.getElementById("card-"+productId);
  if(!product||!card)return;
  const options=selectedOptions(card);
- document.getElementById("price-"+productId).innerText=
-  rupiah(selectedPrice(product,options));
+const hargaPromo=selectedPrice(product,options);
+const hargaNormal=Number(product.original_price||0);
+
+document.getElementById("price-"+productId).innerHTML=
+hargaNormal>hargaPromo
+? `<del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br><strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
+: rupiah(hargaPromo);
 }
 
 function buyNow(productId){
