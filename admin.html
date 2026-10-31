@@ -260,57 +260,101 @@ async function loadProducts(){
   `).join("");
 }
 
-async function saveProduct(e){
+
+let existingImageUrl = null;
+
+async function saveProduct(e) {
   e.preventDefault();
 
-  const id=document.getElementById("productId").value;
+  const id = document.getElementById("productId").value;
+  const msg = document.getElementById("formMessage");
+  const imageFile = document.getElementById("imageUrl").files[0];
 
-  const product={
-    name:document.getElementById("name").value.trim(),
-    description:document.getElementById("description").value.trim(),
-    price:Number(document.getElementById("price").value),
-    original_price:document.getElementById("originalPrice").value
-      ? Number(document.getElementById("originalPrice").value):null,
-    stock:Number(document.getElementById("stock").value),
-    image_url:document.getElementById("imageUrl").value.trim() || null
-  };
+  msg.textContent = "Menyimpan produk...";
 
-  const msg=document.getElementById("formMessage");
-  msg.textContent="Menyimpan...";
+  try {
+    let imageUrl = existingImageUrl;
 
-  let result;
+    // Upload foto baru jika dipilih
+    if (imageFile) {
+      const ext = (imageFile.name.split(".").pop() || "jpg")
+        .toLowerCase().replace(/[^a-z0-9]/g, "");
 
-  if(id){
-    result=await db.from("products").update(product).eq("id",id);
-  }else{
-    result=await db.from("products").insert(product);
+      const filePath = `products/${Date.now()}-${Math.random()
+        .toString(36).slice(2)}.${ext}`;
+
+      const { error: uploadError } = await db.storage
+        .from("store-assets")
+        .upload(filePath, imageFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: imageFile.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = db.storage
+        .from("store-assets")
+        .getPublicUrl(filePath);
+
+      imageUrl = data.publicUrl;
+    }
+
+    const product = {
+      name: document.getElementById("name").value.trim(),
+      description: document.getElementById("description").value.trim(),
+      price: Number(document.getElementById("price").value),
+      original_price: document.getElementById("originalPrice").value
+        ? Number(document.getElementById("originalPrice").value)
+        : null,
+      stock: Number(document.getElementById("stock").value),
+      image_url: imageUrl || null
+    };
+
+    let result;
+
+    if (id) {
+      result = await db.from("products")
+        .update(product).eq("id", id);
+    } else {
+      result = await db.from("products")
+        .insert(product);
+    }
+
+    if (result.error) throw result.error;
+
+    msg.textContent = "Produk berhasil disimpan!";
+
+    existingImageUrl = null;
+    resetForm();
+    await loadProducts();
+
+  } catch (error) {
+    console.error(error);
+    msg.textContent = "Gagal: " + error.message;
   }
-
-  if(result.error){
-    msg.textContent="Gagal: "+result.error.message;
-    return;
-  }
-
-  msg.textContent="Produk berhasil disimpan.";
-  resetForm();
-  await loadProducts();
 }
 
-function editProduct(id){
-  const p=products.find(x=>String(x.id)===String(id));
-  if(!p)return;
+function editProduct(id) {
+  const p = products.find(x => String(x.id) === String(id));
+  if (!p) return;
 
-  document.getElementById("productId").value=p.id;
-  document.getElementById("name").value=p.name||"";
-  document.getElementById("description").value=p.description||"";
-  document.getElementById("price").value=p.price||0;
-  document.getElementById("originalPrice").value=p.original_price||"";
-  document.getElementById("stock").value=p.stock||0;
-  document.getElementById("imageUrl").value=p.image_url||"";
-  document.getElementById("formTitle").textContent="Edit Produk";
+  document.getElementById("productId").value = p.id;
+  document.getElementById("name").value = p.name || "";
+  document.getElementById("description").value = p.description || "";
+  document.getElementById("price").value = p.price || 0;
+  document.getElementById("originalPrice").value =
+    p.original_price || "";
+  document.getElementById("stock").value = p.stock || 0;
+
+  // Pertahankan foto lama jika tidak memilih foto baru
+  existingImageUrl = p.image_url || null;
+
+  document.getElementById("imageUrl").value = "";
+  document.getElementById("formTitle").textContent = "Edit Produk";
 
   document.getElementById("productForm").scrollIntoView({
-    behavior:"smooth"
+    behavior: "smooth"
   });
 }
 
