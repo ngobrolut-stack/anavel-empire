@@ -756,13 +756,27 @@ function getProductVariants(productId){
 }
 
 function groupedVariants(productId){
- const result={};
- getProductVariants(productId).forEach(v=>{
-  if(!result[v.option_type])result[v.option_type]=[];
-  result[v.option_type].push(v);
- });
- return result;
-}
+  const result={};
+
+  getProductVariants(productId).forEach(v=>{
+    if(!result[v.option_type]){
+      result[v.option_type]=[];
+    }
+    result[v.option_type].push(v);
+  });
+
+  const urutan=["S","M","L","XL","XL2","XL3","XL4","XL5"];
+
+  Object.keys(result).forEach(type=>{
+    if(type.toLowerCase()==="ukuran"){
+      result[type].sort((a,b)=>
+        urutan.indexOf(a.option_value)-urutan.indexOf(b.option_value)
+      );
+    }
+  });
+
+  return result;
+   }
 
 function selectedOptions(card){
  const result={};
