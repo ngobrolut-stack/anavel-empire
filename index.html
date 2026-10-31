@@ -902,15 +902,33 @@ function renderProducts(){
 function updateCardPrice(productId){
  const product=products.find(p=>String(p.id)===String(productId));
  const card=document.getElementById("card-"+productId);
- if(!product||!card)return;
- const options=selectedOptions(card);
-const hargaPromo=selectedPrice(product,options);
-const hargaNormal=Number(product.original_price||0);
 
-document.getElementById("price-"+productId).innerHTML=
-hargaNormal>hargaPromo
-? `<del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br><strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
-: rupiah(hargaPromo);
+ if(!product||!card)return;
+
+ const options=selectedOptions(card);
+ const hargaPromo=selectedPrice(product,options);
+ const hargaNormal=Number(product.original_price||0);
+
+ // Update harga produk
+ document.getElementById("price-"+productId).innerHTML=
+  hargaNormal>hargaPromo
+  ? `<del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br><strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
+  : rupiah(hargaPromo);
+
+ // Update gambar berdasarkan variasi
+ const variants=getProductVariants(productId);
+
+ const selectedVariant=variants.find(v=>
+  v.option_type==="background" &&
+  v.option_value===options.background
+ );
+
+ if(selectedVariant && selectedVariant.image_url){
+  const img=card.querySelector(".product-main-image");
+  if(img){
+   img.src=selectedVariant.image_url;
+  }
+ }
 }
 
 function buyNow(productId){
