@@ -1151,6 +1151,7 @@ let posisiAsliKartu=null;
 let indukAsliKartu=null;
 let tampilanKatalogAsli="";
 
+
 function bukaDetail(productId){
   const kartu=document.getElementById("card-"+productId);
   const katalog=document.getElementById("products");
@@ -1165,6 +1166,9 @@ function bukaDetail(productId){
   indukAsliKartu=kartu.parentNode;
   posisiAsliKartu=kartu.nextSibling;
   tampilanKatalogAsli=katalog.style.display;
+
+  const extra=kartu.querySelector(".product-extra");
+  if(extra)extra.style.display="block";
 
   detail.style.display="block";
   katalog.style.display="none";
@@ -1181,9 +1185,11 @@ function bukaDetail(productId){
 function tutupDetail(){
   const katalog=document.getElementById("products");
   const detail=document.getElementById("detailProduk");
-  const isi=document.getElementById("isiDetailProduk");
 
   if(!kartuDetailAktif)return;
+
+  const extra=kartuDetailAktif.querySelector(".product-extra");
+  if(extra)extra.style.display="none";
 
   if(posisiAsliKartu && posisiAsliKartu.parentNode===indukAsliKartu){
     indukAsliKartu.insertBefore(kartuDetailAktif,posisiAsliKartu);
@@ -1201,7 +1207,8 @@ function tutupDetail(){
   kartuDetailAktif=null;
   posisiAsliKartu=null;
   indukAsliKartu=null;
-  }
+}
+
 loadProducts();
 </script>
 </body>
