@@ -800,11 +800,15 @@ function selectedPrice(product,options){
 }
 
 function renderProducts(){
+
+function renderProducts(){
  const keyword=document.getElementById("search").value.toLowerCase();
  const area=document.getElementById("products");
+
  const filtered=products.filter(p=>
   (p.name||"").toLowerCase().includes(keyword)
  );
+
  if(!filtered.length){
   area.innerHTML="<p>Produk belum tersedia.</p>";
   return;
@@ -812,12 +816,15 @@ function renderProducts(){
 
  area.innerHTML=filtered.map(p=>{
   const groups=groupedVariants(p.id);
+
   const optionHTML=Object.keys(groups).map(type=>{
    const choices=groups[type];
+
    return `
     <div class="option">
      <label>${escapeHTML(optionLabel(type))}</label>
-     <select data-option="${escapeHTML(type)}" onchange="updateCardPrice('${p.id}')">
+     <select data-option="${escapeHTML(type)}"
+      onchange="updateCardPrice('${p.id}')">
       ${choices.map(v=>`
        <option value="${escapeHTML(v.option_value)}">
         ${escapeHTML(v.option_value)}
@@ -826,35 +833,68 @@ function renderProducts(){
     </div>`;
   }).join("");
 
+  const hargaNormal=Number(p.original_price||0);
+  const hargaPromo=Number(p.price||0);
+
+  const diskon=hargaNormal>hargaPromo && hargaNormal>0
+   ? Math.round((hargaNormal-hargaPromo)/hargaNormal*100)
+   : 0;
+
   return `
    <div class="card" id="card-${p.id}">
-    <img
-src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
-alt="${escapeHTML(p.name)}"
-onclick="bukaDetail('${p.id}')"
-style="cursor:pointer;">
-    <div class="info">
-     <h3 onclick="bukaDetail('${p.id}')" style="cursor:pointer;">
-${escapeHTML(p.name)}
-</h3>
-  ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
-     <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
-     <div class="price" id="price-${p.id}">
-  ${Number(p.original_price)>Number(p.price)
-    ? `<span style="display:inline-block;background:#d32f2f;color:white;padding:3px 7px;border-radius:4px;font-size:11px;margin-bottom:5px;">DISKON ${Math.round((Number(p.original_price)-Number(p.price))/Number(p.original_price)*100)}%</span><br><del style="color:#888;font-size:13px;">${rupiah(p.original_price)}</del><br><strong style="color:#d32f2f;">${rupiah(p.price)}</strong>`
-    : rupiah(p.price)}
-</div>
-     <p class="stock">Stok: ${Number(p.stock||0)}</p>
-     ${optionHTML}
-     <button class="add" onclick="addCart('${p.id}')">
- MASUKKAN KE KERANJANG
-</button>
 
-<button class="add"
- style="background:#292929;color:#d6b36a;border:1px solid #c5a66c;margin-top:8px"
- onclick="buyNow('${p.id}')">
- BELI SEKARANG
-</button>
+    <img
+     src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
+     alt="${escapeHTML(p.name)}"
+     onclick="bukaDetail('${p.id}')"
+     style="cursor:pointer;">
+
+    <div class="info">
+
+     <h3 onclick="bukaDetail('${p.id}')"
+      style="cursor:pointer;">
+      ${escapeHTML(p.name)}
+     </h3>
+
+     <div class="price" id="price-${p.id}">
+      ${diskon>0
+       ? `<span style="display:inline-block;background:#d32f2f;color:white;padding:3px 7px;border-radius:4px;font-size:11px;margin-bottom:5px;">DISKON ${diskon}%</span><br>
+          <del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br>
+          <strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
+       : rupiah(hargaPromo)}
+     </div>
+
+     <div class="product-extra" style="display:none;">
+
+      ${(p.name||"").toLowerCase().includes("jas almamater")
+       ? `<button class="add"
+          style="background:#17365d;color:white"
+          onclick="showSizeChart()">
+          LIHAT SIZE CHART
+         </button>`
+       : ""}
+
+      <p class="description">
+       ${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}
+      </p>
+
+      <p class="stock">
+       Stok: ${Number(p.stock||0)}
+      </p>
+
+      ${optionHTML}
+
+      <button class="add" onclick="addCart('${p.id}')">
+       MASUKKAN KE KERANJANG
+      </button>
+
+      <button class="add"
+       style="background:#292929;color:#d6b36a;border:1px solid #c5a66c;margin-top:8px"
+       onclick="buyNow('${p.id}')">
+       BELI SEKARANG
+      </button>
+
+     </div>
     </div>
    </div>`;
  }).join("");
@@ -1146,67 +1186,67 @@ async function loadProducts(){
   area.innerHTML="<p>Gagal memuat produk: "+escapeHTML(error.message)+"</p>";
  }
 }
+
 let kartuDetailAktif=null;
 let posisiAsliKartu=null;
 let indukAsliKartu=null;
 let tampilanKatalogAsli="";
 
-
 function bukaDetail(productId){
-  const kartu=document.getElementById("card-"+productId);
-  const katalog=document.getElementById("products");
-  const detail=document.getElementById("detailProduk");
-  const isi=document.getElementById("isiDetailProduk");
+ const kartu=document.getElementById("card-"+productId);
+ const katalog=document.getElementById("products");
+ const detail=document.getElementById("detailProduk");
+ const isi=document.getElementById("isiDetailProduk");
 
-  if(!kartu||!katalog||!detail||!isi)return;
+ if(!kartu||!katalog||!detail||!isi)return;
 
-  if(kartuDetailAktif)tutupDetail();
+ if(kartuDetailAktif)tutupDetail();
 
-  kartuDetailAktif=kartu;
-  indukAsliKartu=kartu.parentNode;
-  posisiAsliKartu=kartu.nextSibling;
-  tampilanKatalogAsli=katalog.style.display;
+ kartuDetailAktif=kartu;
+ indukAsliKartu=kartu.parentNode;
+ posisiAsliKartu=kartu.nextSibling;
+ tampilanKatalogAsli=katalog.style.display;
 
-  const extra=kartu.querySelector(".product-extra");
-  if(extra)extra.style.display="block";
+ const extra=kartu.querySelector(".product-extra");
+ if(extra)extra.style.display="block";
 
-  detail.style.display="block";
-  katalog.style.display="none";
+ detail.style.display="block";
+ katalog.style.display="none";
 
-  isi.appendChild(kartu);
+ isi.appendChild(kartu);
 
-  kartu.style.width="100%";
-  kartu.style.maxWidth="650px";
-  kartu.style.margin="0 auto";
+ kartu.style.width="100%";
+ kartu.style.maxWidth="650px";
+ kartu.style.margin="0 auto";
 
-  detail.scrollIntoView({behavior:"smooth"});
+ detail.scrollIntoView({behavior:"smooth"});
 }
 
 function tutupDetail(){
-  const katalog=document.getElementById("products");
-  const detail=document.getElementById("detailProduk");
+ const katalog=document.getElementById("products");
+ const detail=document.getElementById("detailProduk");
 
-  if(!kartuDetailAktif)return;
+ if(!kartuDetailAktif)return;
 
-  const extra=kartuDetailAktif.querySelector(".product-extra");
-  if(extra)extra.style.display="none";
+ const extra=kartuDetailAktif.querySelector(".product-extra");
+ if(extra)extra.style.display="none";
 
-  if(posisiAsliKartu && posisiAsliKartu.parentNode===indukAsliKartu){
-    indukAsliKartu.insertBefore(kartuDetailAktif,posisiAsliKartu);
-  }else{
-    indukAsliKartu.appendChild(kartuDetailAktif);
-  }
+ if(posisiAsliKartu && posisiAsliKartu.parentNode===indukAsliKartu){
+  indukAsliKartu.insertBefore(kartuDetailAktif,posisiAsliKartu);
+ }else{
+  indukAsliKartu.appendChild(kartuDetailAktif);
+ }
 
-  kartuDetailAktif.style.width="";
-  kartuDetailAktif.style.maxWidth="";
-  kartuDetailAktif.style.margin="";
+ kartuDetailAktif.style.width="";
+ kartuDetailAktif.style.maxWidth="";
+ kartuDetailAktif.style.margin="";
 
-  katalog.style.display=tampilanKatalogAsli;
-  detail.style.display="none";
+ katalog.style.display=tampilanKatalogAsli;
+ detail.style.display="none";
 
-  kartuDetailAktif=null;
-  posisiAsliKartu=null;
-  indukAsliKartu=null;
+ kartuDetailAktif=null;
+ posisiAsliKartu=null;
+ indukAsliKartu=null;
 }
 
 loadProducts();
