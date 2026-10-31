@@ -1206,6 +1206,7 @@ function pilihFotoDetail(url){
  if(gambar)gambar.src=url;
 }
 
+
 function bukaDetail(productId){
  const kartu=document.getElementById("card-"+productId);
  const katalog=document.getElementById("products");
@@ -1223,28 +1224,6 @@ function bukaDetail(productId){
 
  const extra=kartu.querySelector(".product-extra");
  if(extra)extra.style.display="block";
-
- const gambar=kartu.querySelector("img");
- const namaProduk=kartu.querySelector("h3");
-
- if(namaProduk && namaProduk.textContent.toLowerCase().includes("jas almamater")){
-  gambar.classList.add("product-main-image");
-  gambar.src=fotoGaleriJas[0];
-
-  const gallery=document.createElement("div");
-  gallery.className="detail-gallery";
-  gallery.style.cssText="display:flex;gap:10px;overflow-x:auto;padding:12px 0;";
-
-  gallery.innerHTML=fotoGaleriJas.map((url,index)=>`
-   <img
-    src="${url}"
-    alt="Foto Jas Almamater ${index+1}"
-    onclick="pilihFotoDetail('${url}')"
-    style="width:75px;height:75px;object-fit:cover;border:1px solid #ddd;border-radius:8px;cursor:pointer;flex-shrink:0;">
-  `).join("");
-
-  gambar.insertAdjacentElement("afterend",gallery);
- }
 
  detail.style.display="block";
  katalog.style.display="none";
@@ -1264,14 +1243,8 @@ function tutupDetail(){
 
  if(!kartuDetailAktif)return;
 
- const gallery=kartuDetailAktif.querySelector(".detail-gallery");
- if(gallery)gallery.remove();
-
  const extra=kartuDetailAktif.querySelector(".product-extra");
  if(extra)extra.style.display="none";
-
- const gambar=kartuDetailAktif.querySelector(".product-main-image");
- if(gambar)gambar.classList.remove("product-main-image");
 
  if(posisiAsliKartu && posisiAsliKartu.parentNode===indukAsliKartu){
   indukAsliKartu.insertBefore(kartuDetailAktif,posisiAsliKartu);
@@ -1290,6 +1263,7 @@ function tutupDetail(){
  posisiAsliKartu=null;
  indukAsliKartu=null;
 }
+
 loadProducts();
 </script>
 </body>
