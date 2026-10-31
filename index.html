@@ -1073,12 +1073,13 @@ function checkout(){
 }
 
 async function submitOrder(){
- const name=document.getElementById("buyerName").value.trim();
- const nim=document.getElementById("buyerNim").value.trim();
- const phone=document.getElementById("buyerPhone").value.trim();
- const address=document.getElementById("buyerAddress").value.trim();
- const ktmFile=document.getElementById("ktmFile").files[0];
+  const waWindow = window.open("about:blank", "_blank");
 
+  const name=document.getElementById("buyerName").value.trim();
+  const nim=document.getElementById("buyerNim").value.trim();
+  const phone=document.getElementById("buyerPhone").value.trim();
+  const address=document.getElementById("buyerAddress").value.trim();
+  const ktmFile=document.getElementById("ktmFile").files[0];
  if(!name||!nim||!phone||!address){
   alert("Mohon lengkapi semua data pembeli.");
   return;
@@ -1171,12 +1172,17 @@ if(perluKTM){
  message+="TOTAL: "+rupiah(total)+"\n\n";
 message+="Tolong cek ongkir ke daerah saya berapa dan metode pembayarannya bagaimana ya.";
 
- window.open(
-  "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(message),
-  "_blank"
- );
-}function showSizeChart(){
-  document.getElementById("sizeChartModal").style.display="block";
+ const waUrl = "https://wa.me/"+WHATSAPP+
+  "?text="+encodeURIComponent(message);
+
+if(waWindow && !waWindow.closed){
+  waWindow.location.href = waUrl;
+}else{
+  window.location.href = waUrl;
+
+}
+ function showSizeChart(){
+document.getElementById("sizeChartModal").style.display="block";
 }
 
 function hideSizeChart(){
