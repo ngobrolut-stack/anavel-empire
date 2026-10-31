@@ -697,14 +697,19 @@ style="width:100%;padding:12px;margin:8px 0">
 style="width:100%;padding:12px;margin:8px 0">
 <input id="buyerPhone" type="tel" placeholder="Nomor WhatsApp aktif" required
 style="width:100%;padding:12px;margin:8px 0">
-<label style="display:block;margin:12px 0 6px">Upload File e-KTM (Wajib untuk produk yang memakai KTM)</label>
-<input
-  type="file"
-  id="ktmFile"
-  accept=".pdf,.jpg,.jpeg,.png"
-  style="width:100%;padding:12px;margin:8px 0"
->
-<small>Format PDF, JPG, JPEG, atau PNG. Maksimal 5 MB.</small>
+
+<div id="ktmUploadField" style="display:none;">
+  <label style="display:block;margin:12px 0 6px">
+    Upload File e-KTM (Wajib untuk produk yang memakai KTM)
+  </label>
+  <input
+    type="file"
+    id="ktmFile"
+    accept=".pdf,.jpg,.jpeg,.png"
+    style="width:100%;padding:12px;margin:8px 0"
+  >
+  <small>Format PDF, JPG, JPEG, atau PNG. Maksimal 5 MB.</small>
+</div>
 <textarea id="buyerAddress" placeholder="Alamat lengkap pengiriman" required
 style="width:100%;padding:12px;margin:8px 0;min-height:90px"></textarea>
 
@@ -1035,6 +1040,19 @@ function renderCart(){
  }
  const total=cart.reduce((sum,p)=>sum+p.price*p.qty,0);
  document.getElementById("total").innerText="Total: "+rupiah(total);
+ const ktmUploadField = document.getElementById("ktmUploadField");
+
+const perluKTM = cart.some(item => {
+  const p = products.find(x => String(x.id) === String(item.id));
+  const namaProduk = (item.name + " " + (p?.description || "")).toLowerCase();
+
+return namaProduk.includes("ktm") ||
+  (namaProduk.includes("paket lengkap") && namaProduk.includes("osmb"));
+});
+
+if (ktmUploadField) {
+  ktmUploadField.style.display = perluKTM ? "block" : "none";
+}
 }
 
 function changeQty(index,change){
@@ -1089,10 +1107,12 @@ async function submitOrder(){
   alert("Keranjang masih kosong.");
   return;
  }
- const perluKTM=cart.some(item=>{
-  const p=products.find(x=>String(x.id)===String(item.id));
-  return (item.name+" "+(p?.description||""))
-    .toLowerCase().includes("ktm");
+ const perluKTM = cart.some(item => {
+  const p = products.find(x => String(x.id) === String(item.id));
+  const namaProduk = (item.name + " " + (p?.description || "")).toLowerCase();
+
+  return namaProduk.includes("ktm") ||
+    (namaProduk.includes("paket lengkap") && namaProduk.includes("osmb"));
 });
 
 if(perluKTM && !ktmFile){
