@@ -1,1 +1,359 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANAVEL EMPIRE | Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --gold:#c6a45b;
+  --blue:#245889;
+  --dark:#182333;
+  --bg:#f6f7fa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--dark);
+}
+header{
+  background:white;
+  padding:20px 5%;
+  border-bottom:2px solid var(--gold);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+header h2{margin:0;color:var(--blue)}
+button{
+  border:0;
+  padding:11px 17px;
+  border-radius:7px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.primary{background:var(--blue);color:white}
+.gold{background:var(--gold);color:white}
+.danger{background:#d94141;color:white}
+main{padding:25px 5%;max-width:1200px;margin:auto}
+.card{
+  background:white;
+  border-radius:12px;
+  padding:22px;
+  margin-bottom:20px;
+  box-shadow:0 3px 15px #0000000a;
+}
+h3{margin-top:0;color:var(--blue)}
+input,textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:7px;
+  margin:7px 0 15px;
+  font:inherit;
+}
+textarea{min-height:90px}
+label{font-weight:bold;font-size:14px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+.stat{
+  background:white;
+  border-left:4px solid var(--gold);
+  padding:20px;
+  border-radius:9px;
+}
+.stat strong{font-size:25px;color:var(--blue)}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:13px;border-bottom:1px solid #eee;text-align:left}
+th{color:var(--blue);background:#f8f8f8}
+.table-wrap{overflow-x:auto}
+#dashboard{display:none}
+#login{max-width:420px;margin:80px auto;padding:25px}
+#message{margin:10px 0;color:#b33}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+small{color:#777}
+@media(max-width:600px){
+ main{padding:15px}
+ header{padding:15px}
+ header h2{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h2>ANAVEL EMPIRE</h2>
+  <button class="danger" id="logoutBtn" onclick="logout()" style="display:none">
+    Logout
+  </button>
+</header>
+
+<section id="login" class="card">
+  <h2>Admin Login</h2>
+  <p>ANAVEL EMPIRE Management System</p>
+  <form onsubmit="login(event)">
+    <label>Email Admin</label>
+    <input id="email" type="email" required placeholder="Email admin">
+    <label>Password</label>
+    <input id="password" type="password" required placeholder="Password">
+    <button class="primary" style="width:100%">MASUK DASHBOARD</button>
+  </form>
+  <p id="message"></p>
+</section>
+
+<main id="dashboard">
+  <h2>Dashboard Admin</h2>
+  <p>Selamat datang di panel pengelolaan ANAVEL EMPIRE.</p>
+
+  <div class="grid">
+    <div class="stat">
+      <small>Total Produk</small><br>
+      <strong id="totalProducts">0</strong>
+    </div>
+    <div class="stat">
+      <small>Produk Aktif</small><br>
+      <strong id="activeProducts">0</strong>
+    </div>
+    <div class="stat">
+      <small>Total Stok</small><br>
+      <strong id="totalStock">0</strong>
+    </div>
+  </div>
+
+  <section class="card" style="margin-top:22px">
+    <h3 id="formTitle">Tambah Produk</h3>
+    <form id="productForm" onsubmit="saveProduct(event)">
+      <input type="hidden" id="productId">
+
+      <label>Nama Produk</label>
+      <input id="name" required placeholder="Nama produk">
+
+      <label>Deskripsi</label>
+      <textarea id="description" placeholder="Deskripsi produk"></textarea>
+
+      <label>Harga (Rupiah)</label>
+      <input id="price" type="number" min="0" required>
+
+      <label>Harga Sebelum Diskon (opsional)</label>
+      <input id="originalPrice" type="number" min="0">
+
+      <label>Stok</label>
+      <input id="stock" type="number" min="0" required>
+
+      <label>URL Foto Produk</label>
+      <input id="imageUrl" type="url" placeholder="https://...">
+
+      <div class="actions">
+        <button class="primary" type="submit">SIMPAN PRODUK</button>
+        <button type="button" onclick="resetForm()">BATAL</button>
+      </div>
+    </form>
+    <p id="formMessage"></p>
+  </section>
+
+  <section class="card">
+    <h3>Daftar Produk</h3>
+    <button class="gold" onclick="loadProducts()">REFRESH DATA</button>
+    <br><br>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Produk</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="productList"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "ISI_URL_SUPABASE";
+const SUPABASE_KEY = "ISI_PUBLISHABLE_KEY_SUPABASE";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let products = [];
+
+async function login(e){
+  e.preventDefault();
+
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const msg = document.getElementById("message");
+
+  msg.textContent = "Memeriksa akun...";
+
+  const {data,error} = await db.auth.signInWithPassword({
+    email,password
+  });
+
+  if(error){
+    msg.textContent = "Login gagal: " + error.message;
+    return;
+  }
+
+  await showDashboard();
+}
+
+async function showDashboard(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  document.getElementById("logoutBtn").style.display="block";
+  await loadProducts();
+}
+
+async function logout(){
+  await db.auth.signOut();
+  location.reload();
+}
+
+async function loadProducts(){
+  const list = document.getElementById("productList");
+  list.innerHTML = "<tr><td colspan='5'>Memuat produk...</td></tr>";
+
+  const {data,error} = await db.from("products")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    list.innerHTML = "<tr><td colspan='5'>Gagal: "+escapeHTML(error.message)+"</td></tr>";
+    return;
+  }
+
+  products = data || [];
+
+  document.getElementById("totalProducts").textContent=products.length;
+  document.getElementById("activeProducts").textContent=
+    products.filter(p=>p.is_active).length;
+  document.getElementById("totalStock").textContent=
+    products.reduce((sum,p)=>sum+Number(p.stock||0),0);
+
+  list.innerHTML = products.map(p=>`
+    <tr>
+      <td>${escapeHTML(p.name)}</td>
+      <td>${rupiah(p.price)}</td>
+      <td>${p.stock}</td>
+      <td>${p.is_active?"Aktif":"Nonaktif"}</td>
+      <td>
+        <div class="actions">
+          <button class="gold" onclick="editProduct('${p.id}')">Edit</button>
+          <button class="danger" onclick="deleteProduct('${p.id}')">Hapus</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function saveProduct(e){
+  e.preventDefault();
+
+  const id=document.getElementById("productId").value;
+
+  const product={
+    name:document.getElementById("name").value.trim(),
+    description:document.getElementById("description").value.trim(),
+    price:Number(document.getElementById("price").value),
+    original_price:document.getElementById("originalPrice").value
+      ? Number(document.getElementById("originalPrice").value):null,
+    stock:Number(document.getElementById("stock").value),
+    image_url:document.getElementById("imageUrl").value.trim() || null
+  };
+
+  const msg=document.getElementById("formMessage");
+  msg.textContent="Menyimpan...";
+
+  let result;
+
+  if(id){
+    result=await db.from("products").update(product).eq("id",id);
+  }else{
+    result=await db.from("products").insert(product);
+  }
+
+  if(result.error){
+    msg.textContent="Gagal: "+result.error.message;
+    return;
+  }
+
+  msg.textContent="Produk berhasil disimpan.";
+  resetForm();
+  await loadProducts();
+}
+
+function editProduct(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  document.getElementById("productId").value=p.id;
+  document.getElementById("name").value=p.name||"";
+  document.getElementById("description").value=p.description||"";
+  document.getElementById("price").value=p.price||0;
+  document.getElementById("originalPrice").value=p.original_price||"";
+  document.getElementById("stock").value=p.stock||0;
+  document.getElementById("imageUrl").value=p.image_url||"";
+  document.getElementById("formTitle").textContent="Edit Produk";
+
+  document.getElementById("productForm").scrollIntoView({
+    behavior:"smooth"
+  });
+}
+
+async function deleteProduct(id){
+  if(!confirm("Yakin ingin menghapus produk ini?"))return;
+
+  const {error}=await db.from("products").delete().eq("id",id);
+
+  if(error){
+    alert("Gagal menghapus: "+error.message);
+    return;
+  }
+
+  alert("Produk berhasil dihapus.");
+  await loadProducts();
+}
+
+function resetForm(){
+  document.getElementById("productForm").reset();
+  document.getElementById("productId").value="";
+  document.getElementById("formTitle").textContent="Tambah Produk";
+  document.getElementById("formMessage").textContent="";
+}
+
+function rupiah(n){
+  return "Rp "+Number(n||0).toLocaleString("id-ID");
+}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+async function checkSession(){
+  const {data}=await db.auth.getSession();
+  if(data.session){
+    await showDashboard();
+  }
+}
+</script>
+</body>
+</html>
+
