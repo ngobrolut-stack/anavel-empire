@@ -1044,8 +1044,7 @@ function renderCart(){
 
 const perluKTM = cart.some(item => {
   const p = products.find(x => String(x.id) === String(item.id));
-  const namaProduk = (item.name + " " + (p?.description || "")).toLowerCase();
-
+  const namaProduk = (item.name || "").toLowerCase();
 return namaProduk.includes("ktm") ||
   (namaProduk.includes("paket lengkap") && namaProduk.includes("osmb"));
 });
@@ -1109,8 +1108,7 @@ async function submitOrder(){
  }
  const perluKTM = cart.some(item => {
   const p = products.find(x => String(x.id) === String(item.id));
-  const namaProduk = (item.name + " " + (p?.description || "")).toLowerCase();
-
+  const namaProduk = (item.name || "").toLowerCase();
   return namaProduk.includes("ktm") ||
     (namaProduk.includes("paket lengkap") && namaProduk.includes("osmb"));
 });
