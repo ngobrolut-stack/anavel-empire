@@ -654,10 +654,6 @@ header {
 </div>
 </section>
 <div id="sizeChartModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;overflow:auto;padding:20px;">
- <section id="detailProduk" style="display:none;">
-  <button onclick="tutupDetail()">← Kembali ke Produk</button>
-  <div id="isiDetailProduk"></div>
- </section>
   <div style="max-width:650px;margin:20px auto;background:white;color:#17365d;padding:18px;border-radius:12px;">
     <button onclick="hideSizeChart()" style="float:right;padding:8px 14px;">TUTUP ✕</button>
     <h2>SIZE CHART JAS ALMAMATER UT</h2>
@@ -678,6 +674,10 @@ header {
     </div>
   </div>
 </div>
+ <section id="detailProduk" style="display:none;">
+  <button onclick="tutupDetail()">← Kembali ke Produk</button>
+  <div id="isiDetailProduk"></div>
+ </section>
 <section id="keranjang">
 <div class="heading">
 <h2>KERANJANG BELANJA</h2>
@@ -828,11 +828,16 @@ function renderProducts(){
 
   return `
    <div class="card" id="card-${p.id}">
-    <img src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
-     alt="${escapeHTML(p.name)}">
+    <img
+src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
+alt="${escapeHTML(p.name)}"
+onclick="bukaDetail('${p.id}')"
+style="cursor:pointer;">
     <div class="info">
-     <h3>${escapeHTML(p.name)}</h3>
-     ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
+     <h3 onclick="bukaDetail('${p.id}')" style="cursor:pointer;">
+${escapeHTML(p.name)}
+</h3>
+  ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
      <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
      <div class="price" id="price-${p.id}">
   ${Number(p.original_price)>Number(p.price)
@@ -1141,7 +1146,62 @@ async function loadProducts(){
   area.innerHTML="<p>Gagal memuat produk: "+escapeHTML(error.message)+"</p>";
  }
 }
+let kartuDetailAktif=null;
+let posisiAsliKartu=null;
+let indukAsliKartu=null;
+let tampilanKatalogAsli="";
 
+function bukaDetail(productId){
+  const kartu=document.getElementById("card-"+productId);
+  const katalog=document.getElementById("products");
+  const detail=document.getElementById("detailProduk");
+  const isi=document.getElementById("isiDetailProduk");
+
+  if(!kartu||!katalog||!detail||!isi)return;
+
+  if(kartuDetailAktif)tutupDetail();
+
+  kartuDetailAktif=kartu;
+  indukAsliKartu=kartu.parentNode;
+  posisiAsliKartu=kartu.nextSibling;
+  tampilanKatalogAsli=katalog.style.display;
+
+  detail.style.display="block";
+  katalog.style.display="none";
+
+  isi.appendChild(kartu);
+
+  kartu.style.width="100%";
+  kartu.style.maxWidth="650px";
+  kartu.style.margin="0 auto";
+
+  detail.scrollIntoView({behavior:"smooth"});
+}
+
+function tutupDetail(){
+  const katalog=document.getElementById("products");
+  const detail=document.getElementById("detailProduk");
+  const isi=document.getElementById("isiDetailProduk");
+
+  if(!kartuDetailAktif)return;
+
+  if(posisiAsliKartu && posisiAsliKartu.parentNode===indukAsliKartu){
+    indukAsliKartu.insertBefore(kartuDetailAktif,posisiAsliKartu);
+  }else{
+    indukAsliKartu.appendChild(kartuDetailAktif);
+  }
+
+  kartuDetailAktif.style.width="";
+  kartuDetailAktif.style.maxWidth="";
+  kartuDetailAktif.style.margin="";
+
+  katalog.style.display=tampilanKatalogAsli;
+  detail.style.display="none";
+
+  kartuDetailAktif=null;
+  posisiAsliKartu=null;
+  indukAsliKartu=null;
+  }
 loadProducts();
 </script>
 </body>
