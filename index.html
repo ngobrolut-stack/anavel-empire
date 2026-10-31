@@ -835,7 +835,9 @@ function renderProducts(){
      ${(p.name||"").toLowerCase().includes("jas almamater") ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>` : ""}
      <p class="description">${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}</p>
      <div class="price" id="price-${p.id}">
-  ${Number(p.original_price)>Number(p.price) ? `<del style="color:#888;font-size:13px;">${rupiah(p.original_price)}</del><br><strong style="color:#d32f2f;">${rupiah(p.price)}</strong>` : rupiah(p.price)}
+  ${Number(p.original_price)>Number(p.price)
+    ? `<span style="display:inline-block;background:#d32f2f;color:white;padding:3px 7px;border-radius:4px;font-size:11px;margin-bottom:5px;">DISKON ${Math.round((Number(p.original_price)-Number(p.price))/Number(p.original_price)*100)}%</span><br><del style="color:#888;font-size:13px;">${rupiah(p.original_price)}</del><br><strong style="color:#d32f2f;">${rupiah(p.price)}</strong>`
+    : rupiah(p.price)}
 </div>
      <p class="stock">Stok: ${Number(p.stock||0)}</p>
      ${optionHTML}
