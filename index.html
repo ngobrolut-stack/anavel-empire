@@ -842,6 +842,7 @@ function renderProducts(){
    <div class="card" id="card-${p.id}">
 
     <img
+     class="product-main-image"
      src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
      alt="${escapeHTML(p.name)}"
      onclick="bukaDetail('${p.id}')"
@@ -1206,6 +1207,33 @@ function bukaDetail(productId){
  posisiAsliKartu=kartu.nextSibling;
  tampilanKatalogAsli=katalog.style.display;
 
+ const galeriJas = [
+ "https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/ca712676d8f3f139b7f73454c8ce90d4.jpg",
+ "https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/IMG-20260525-WA0028.jpg",
+ "https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/IMG-20260525-WA0033.jpg",
+ "https://tqvzxaywnnzftqsmcuxk.supabase.co/storage/v1/object/public/store-assets/IMG-20260525-WA0034.jpg"
+];
+
+const gambarUtama=kartu.querySelector(".product-main-image");
+
+if((kartu.querySelector("h3")?.textContent||"").toLowerCase().includes("jas almamater") && gambarUtama){
+ gambarUtama.src=galeriJas[0];
+const galeriLama=kartu.querySelector(".galeri-jas");
+if(galeriLama)galeriLama.remove();
+ const galeri=document.createElement("div");
+ galeri.className="galeri-jas";
+ galeri.style.cssText="display:flex;gap:8px;overflow-x:auto;margin:12px 0;";
+
+ galeriJas.forEach(url=>{
+  const thumb=document.createElement("img");
+  thumb.src=url;
+  thumb.style.cssText="width:75px;height:75px;object-fit:cover;border:1px solid #c5a66c;border-radius:6px;cursor:pointer;flex-shrink:0;";
+  thumb.onclick=()=>gambarUtama.src=url;
+  galeri.appendChild(thumb);
+ });
+
+ gambarUtama.insertAdjacentElement("afterend",galeri);
+}
  const extra=kartu.querySelector(".product-extra");
  if(extra)extra.style.display="block";
 
