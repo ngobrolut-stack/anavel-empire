@@ -147,6 +147,24 @@ small{color:#777}
 
       <label>Stok</label>
       <input id="stock" type="number" min="0" required>
+      <div id="variantSection" style="margin:20px 0;padding:18px;border:1px solid #d8c18b;border-radius:12px;background:#fffdf8;">
+  <h3>Pengaturan Varian Produk</h3>
+  <p>Tambahkan pilihan ukuran, warna, desain, atau komponen produk.</p>
+
+  <div id="variantGroups"></div>
+
+  <button type="button" class="gold" onclick="addVariantGroup()">
+    + TAMBAH KELOMPOK VARIAN
+  </button>
+
+  <div style="margin-top:18px;">
+    <button type="button" class="primary" onclick="generateCombinations()">
+      BUAT KOMBINASI PRODUK
+    </button>
+  </div>
+
+  <div id="combinationArea" style="margin-top:15px;"></div>
+</div>
 
       <label>URL Foto Produk</label>
       <input id="imageUrl" type="file" accept="image/*">
@@ -262,6 +280,119 @@ async function loadProducts(){
 
 
 let existingImageUrl = null;
+  function addVariantGroup() {
+  const container = document.getElementById("variantGroups");
+
+  const group = document.createElement("div");
+  group.style.cssText =
+    "border:1px solid #ddd;padding:12px;margin:12px 0;border-radius:8px;";
+
+  group.innerHTML = `
+    <label>Nama Kelompok Varian</label>
+    <input type="text" class="variant-name"
+      placeholder="Contoh: Ukuran, Warna, Desain KTM">
+
+    <label>Daftar Pilihan (pisahkan dengan koma)</label>
+    <input type="text" class="variant-values"
+      placeholder="Contoh: S, M, L, XL">
+
+    <button type="button" class="danger"
+      onclick="this.parentElement.remove()">
+      HAPUS KELOMPOK
+    </button>
+  `;
+
+  container.appendChild(group);
+}
+
+  let pendingVariantCombinations = [];
+
+function generateCombinations() {
+  const groups = [...document.querySelectorAll("#variantGroups > div")]
+    .map(group => ({
+      name: group.querySelector(".variant-name").value.trim(),
+      values: group.querySelector(".variant-values").value
+        .split(",")
+        .map(v => v.trim())
+        .filter(Boolean)
+    }));
+
+  if (!groups.length || groups.some(g => !g.name || !g.values.length)) {
+    alert("Isi nama kelompok dan pilihan variannya terlebih dahulu.");
+    return;
+  }
+
+  let combinations = [{}];
+
+  groups.forEach(group => {
+    const next = [];
+
+    combinations.forEach(combo => {
+      group.values.forEach(value => {
+        next.push({
+          ...combo,
+          [group.name]: value
+        });
+      });
+    });
+
+    combinations = next;
+  });
+
+  pendingVariantCombinations = combinations.map(attributes => ({
+    attributes,
+    price: 0,
+    stock: 0
+  }));
+
+  const area = document.getElementById("combinationArea");
+
+  area.innerHTML = `
+    <h3>Daftar Kombinasi (${combinations.length})</h3>
+    ${pendingVariantCombinations.map((item, index) => `
+      <div style="border:1px solid #ddd;padding:12px;margin:10px 0;border-radius:8px;">
+        <strong>${Object.entries(item.attributes)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(" | ")}</strong>
+
+        <label>Harga (Rupiah)</label>
+        <input type="number" min="0" class="combo-price"
+          data-index="${index}" value="0">
+
+        <label>Stok</label>
+        <input type="number" min="0" class="combo-stock"
+          data-index="${index}" value="0">
+      </div>
+    `).join("")}
+  `;
+}
+  async function saveVariantCombinations(productId) {
+  const rows = pendingVariantCombinations.map((item, index) => ({
+    product_id: productId,
+    attributes: item.attributes,
+    price: Number(
+      document.querySelector(`.combo-price[data-index="${index}"]`)?.value || 0
+    ),
+    stock: Number(
+      document.querySelector(`.combo-stock[data-index="${index}"]`)?.value || 0
+    ),
+    is_active: true
+  }));
+
+  if (!rows.length) return;
+
+  if (rows.some(row => row.price < 0 || row.stock < 0)) {
+    throw new Error("Harga dan stok varian tidak boleh negatif.");
+  }
+
+  const { error } = await db
+    .from("product_variant_combinations")
+    .insert(rows);
+
+  if (error) throw error;
+}
+
+
 
 async function saveProduct(e) {
   e.preventDefault();
@@ -312,20 +443,45 @@ async function saveProduct(e) {
     };
 
     let result;
+    let productId;
 
     if (id) {
       result = await db.from("products")
-        .update(product).eq("id", id);
+        .update(product)
+        .eq("id", id)
+        .select("id")
+        .single();
     } else {
       result = await db.from("products")
-        .insert(product);
+        .insert(product)
+        .select("id")
+        .single();
     }
 
     if (result.error) throw result.error;
 
+    productId = result.data.id;
+
+    // Simpan kombinasi jika admin sudah membuat kombinasi baru
+    if (pendingVariantCombinations.length > 0) {
+      const { error: deleteError } = await db
+        .from("product_variant_combinations")
+        .delete()
+        .eq("product_id", productId);
+
+      if (deleteError) throw deleteError;
+
+      await saveVariantCombinations(productId);
+    }
+
     msg.textContent = "Produk berhasil disimpan!";
 
     existingImageUrl = null;
+    pendingVariantCombinations = [];
+
+    document.getElementById("variantGroups").innerHTML = "";
+    document.getElementById("combinationArea").innerHTML = "";
+
     resetForm();
     await loadProducts();
 
@@ -334,7 +490,6 @@ async function saveProduct(e) {
     msg.textContent = "Gagal: " + error.message;
   }
 }
-
 function editProduct(id) {
   const p = products.find(x => String(x.id) === String(id));
   if (!p) return;
