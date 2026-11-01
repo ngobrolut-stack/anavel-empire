@@ -834,6 +834,7 @@ function selectedPrice(product,options){
 }
 
 
+
 function renderProducts(){
  const keyword=document.getElementById("search").value.toLowerCase();
  const area=document.getElementById("products");
@@ -883,17 +884,12 @@ function renderProducts(){
      </select>
     </div>`;
   }).join("");
-  filtered.forEach(p=>{
- updateCardPrice(p.id);
-});
-  }
-  
-  const hargaNormal=Number(p.original_price||0);
-const hargaAwal=selectedPrice(p,{});
 
-const hargaPromo=hargaAwal===null
- ? Number(p.price||0)
- : hargaAwal;
+  const hargaNormal=Number(p.original_price||0);
+  const hargaAwal=selectedPrice(p,{});
+  const hargaPromo=hargaAwal===null
+   ? Number(p.price||0)
+   : hargaAwal;
 
   const diskon=hargaNormal>hargaPromo && hargaNormal>0
    ? Math.round((hargaNormal-hargaPromo)/hargaNormal*100)
@@ -901,7 +897,6 @@ const hargaPromo=hargaAwal===null
 
   return `
    <div class="card" id="card-${p.id}">
-
     <img
      class="product-main-image"
      src="${escapeHTML(p.image_url||"https://placehold.co/500x400/222222/d6b36a?text=ANAVEL+EMPIRE")}"
@@ -910,9 +905,7 @@ const hargaPromo=hargaAwal===null
      style="cursor:pointer;">
 
     <div class="info">
-
-     <h3 onclick="bukaDetail('${p.id}')"
-      style="cursor:pointer;">
+     <h3 onclick="bukaDetail('${p.id}')" style="cursor:pointer;">
       ${escapeHTML(p.name)}
      </h3>
 
@@ -925,22 +918,15 @@ const hargaPromo=hargaAwal===null
      </div>
 
      <div class="product-extra" style="display:none;">
-
       ${(p.name||"").toLowerCase().includes("jas almamater")
-       ? `<button class="add"
-          style="background:#17365d;color:white"
-          onclick="showSizeChart()">
-          LIHAT SIZE CHART
-         </button>`
+       ? `<button class="add" style="background:#17365d;color:white" onclick="showSizeChart()">LIHAT SIZE CHART</button>`
        : ""}
 
       <p class="description">
        ${escapeHTML(p.description||"Produk pilihan ANAVEL EMPIRE.")}
       </p>
 
-      <p class="stock">
-       Stok: ${Number(p.stock||0)}
-      </p>
+      <p class="stock">Stok: ${Number(p.stock||0)}</p>
 
       ${optionHTML}
 
@@ -953,14 +939,15 @@ const hargaPromo=hargaAwal===null
        onclick="buyNow('${p.id}')">
        BELI SEKARANG
       </button>
-
      </div>
     </div>
    </div>`;
  }).join("");
+
+ filtered.forEach(p=>{
+  updateCardPrice(p.id);
+ });
 }
-
-
 function updateCardPrice(productId){
  const product=products.find(p=>String(p.id)===String(productId));
  const card=document.getElementById("card-"+productId);
