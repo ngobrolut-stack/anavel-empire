@@ -735,6 +735,7 @@ const WHATSAPP = "628981287802";
 const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let products = [];
 let variants = [];
+let variantCombinations = [];
 let cart = [];
 
 function rupiah(n){
@@ -795,14 +796,43 @@ function selectedOptions(card){
  return result;
 }
 
+
+function findSelectedCombination(product, options){
+ return variantCombinations.find(combo=>{
+  if(String(combo.product_id)!==String(product.id)) return false;
+
+  const attributes=combo.attributes||{};
+  const keys=Object.keys(attributes);
+  const selectedKeys=Object.keys(options);
+
+  if(keys.length!==selectedKeys.length) return false;
+
+  return keys.every(key=>
+   Object.prototype.hasOwnProperty.call(options,key)&&
+   String(attributes[key])===String(options[key])
+  );
+ });
+}
+
 function selectedPrice(product,options){
+ const hasNewCombinations=variantCombinations.some(combo=>
+  String(combo.product_id)===String(product.id)
+ );
+
+ if(hasNewCombinations){
+  const combination=findSelectedCombination(product,options);
+  return combination?Number(combination.price):null;
+ }
+
  const size=variants.find(v=>
   String(v.product_id)===String(product.id)&&
   v.option_type==="ukuran"&&
   v.option_value===options.ukuran
  );
+
  return size?Number(size.price):Number(product.price);
 }
+
 
 function renderProducts(){
  const keyword=document.getElementById("search").value.toLowerCase();
@@ -818,7 +848,25 @@ function renderProducts(){
  }
 
  area.innerHTML=filtered.map(p=>{
-  const groups=groupedVariants(p.id);
+  const newCombinations=variantCombinations.filter(v=>
+   String(v.product_id)===String(p.id)
+  );
+
+  let groups={};
+
+  if(newCombinations.length){
+   newCombinations.forEach(combo=>{
+    Object.entries(combo.attributes||{}).forEach(([type,value])=>{
+     if(!groups[type]) groups[type]=[];
+
+     if(!groups[type].some(v=>v.option_value===String(value))){
+      groups[type].push({option_value:String(value)});
+     }
+    });
+   });
+  }else{
+   groups=groupedVariants(p.id);
+  }
 
   const optionHTML=Object.keys(groups).map(type=>{
    const choices=groups[type];
@@ -835,9 +883,17 @@ function renderProducts(){
      </select>
     </div>`;
   }).join("");
-
+  filtered.forEach(p=>{
+ updateCardPrice(p.id);
+});
+  }
+  
   const hargaNormal=Number(p.original_price||0);
-  const hargaPromo=Number(p.price||0);
+const hargaAwal=selectedPrice(p,{});
+
+const hargaPromo=hargaAwal===null
+ ? Number(p.price||0)
+ : hargaAwal;
 
   const diskon=hargaNormal>hargaPromo && hargaNormal>0
    ? Math.round((hargaNormal-hargaPromo)/hargaNormal*100)
@@ -904,6 +960,7 @@ function renderProducts(){
  }).join("");
 }
 
+
 function updateCardPrice(productId){
  const product=products.find(p=>String(p.id)===String(productId));
  const card=document.getElementById("card-"+productId);
@@ -913,17 +970,22 @@ function updateCardPrice(productId){
  const options=selectedOptions(card);
  const hargaPromo=selectedPrice(product,options);
  const hargaNormal=Number(product.original_price||0);
+ const priceArea=document.getElementById("price-"+productId);
 
- // Update harga produk
- document.getElementById("price-"+productId).innerHTML=
-  hargaNormal>hargaPromo
-  ? `<del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br><strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
-  : rupiah(hargaPromo);
+ if(hargaPromo===null || !Number.isFinite(hargaPromo)){
+  priceArea.innerHTML=
+   '<strong style="color:#d32f2f;">Kombinasi tidak tersedia</strong>';
+ }else{
+  priceArea.innerHTML=
+   hargaNormal>hargaPromo
+   ? `<del style="color:#888;font-size:13px;">${rupiah(hargaNormal)}</del><br><strong style="color:#d32f2f;">${rupiah(hargaPromo)}</strong>`
+   : rupiah(hargaPromo);
+ }
 
- // Update gambar berdasarkan variasi
- const variants=getProductVariants(productId);
+ // Update gambar berdasarkan varian lama
+ const oldVariants=getProductVariants(productId);
 
- const selectedVariant=variants.find(v=>
+ const selectedVariant=oldVariants.find(v=>
   v.option_type==="background" &&
   v.option_value===options.background
  );
@@ -936,6 +998,7 @@ function updateCardPrice(productId){
  }
 }
 
+
 function buyNow(productId){
  const product=products.find(p=>String(p.id)===String(productId));
  const card=document.getElementById("card-"+productId);
@@ -945,8 +1008,30 @@ function buyNow(productId){
  const options=selectedOptions(card);
  const price=selectedPrice(product,options);
 
- if(Number(product.stock||0)<1){
-  alert("Maaf, stok produk habis.");
+ const hasNewCombinations=variantCombinations.some(combo=>
+  String(combo.product_id)===String(product.id)
+ );
+
+ let stock=Number(product.stock||0);
+
+ if(hasNewCombinations){
+  const combination=findSelectedCombination(product,options);
+
+  if(!combination){
+   alert("Kombinasi varian belum tersedia. Silakan pilih varian lain.");
+   return;
+  }
+
+  stock=Number(combination.stock||0);
+ }
+
+ if(price===null || !Number.isFinite(price)){
+  alert("Kombinasi varian belum tersedia.");
+  return;
+ }
+
+ if(stock<1){
+  alert("Maaf, stok varian ini habis.");
   return;
  }
 
@@ -955,23 +1040,18 @@ function buyNow(productId){
 
  const key=String(product.id)+"|"+optionText;
 
- const existing=cart.find(item=>item.key===key);
-
- if(existing){
-  existing.qty=1;
- }else{
-  cart=[{
-   key:key,
-   id:product.id,
-   name:product.name,
-   price:price,
-   options:options,
-   qty:1,
-   stock:Number(product.stock||0)
-  }];
- }
+ cart=[{
+  key:key,
+  id:product.id,
+  name:product.name,
+  price:price,
+  options:options,
+  qty:1,
+  stock:stock
+ }];
 
  renderCart();
+
  document.getElementById("keranjang").scrollIntoView({
   behavior:"smooth"
  });
@@ -984,20 +1064,43 @@ function addCart(productId){
 
  const options=selectedOptions(card);
  const price=selectedPrice(product,options);
- const stock=Number(product.stock||0);
 
- if(stock<1){
-  alert("Maaf, stok produk habis.");
+ const hasNewCombinations=variantCombinations.some(combo=>
+  String(combo.product_id)===String(product.id)
+ );
+
+ let stock=Number(product.stock||0);
+
+ if(hasNewCombinations){
+  const combination=findSelectedCombination(product,options);
+
+  if(!combination){
+   alert("Kombinasi varian belum tersedia. Silakan pilih varian lain.");
+   return;
+  }
+
+  stock=Number(combination.stock||0);
+ }
+
+ if(price===null || !Number.isFinite(price)){
+  alert("Kombinasi varian belum tersedia.");
   return;
  }
 
- const optionText=Object.entries(options).map(([k,v])=>k+": "+v).join(" | ");
+ if(stock<1){
+  alert("Maaf, stok varian ini habis.");
+  return;
+ }
+
+ const optionText=Object.entries(options)
+  .map(([k,v])=>k+": "+v).join(" | ");
+
  const key=String(product.id)+"|"+optionText;
  const existing=cart.find(item=>item.key===key);
 
  if(existing){
   if(existing.qty>=stock){
-   alert("Jumlah melebihi stok produk.");
+   alert("Jumlah melebihi stok varian.");
    return;
   }
   existing.qty++;
@@ -1012,10 +1115,10 @@ function addCart(productId){
    stock:stock
   });
  }
+
  renderCart();
  alert("Produk berhasil ditambahkan!");
 }
-
 function renderCart(){
  const area=document.getElementById("cartItems");
  if(!cart.length){
@@ -1207,25 +1310,52 @@ document.getElementById("sizeChartModal").style.display="block";
 function hideSizeChart(){
   document.getElementById("sizeChartModal").style.display="none";
 }
+
 async function loadProducts(){
  const area=document.getElementById("products");
+
  try{
   const productResult=await db.from("products")
-   .select("*").eq("is_active",true).order("created_at",{ascending:false});
-  if(productResult.error)throw productResult.error;
+   .select("*")
+   .eq("is_active",true)
+   .order("created_at",{ascending:false});
+
+  if(productResult.error) throw productResult.error;
+
   products=productResult.data||[];
+
+  variants=[];
+  variantCombinations=[];
 
   if(products.length){
    const ids=products.map(p=>p.id);
+
    const variantResult=await db.from("product_variants")
-    .select("*").in("product_id",ids).eq("is_active",true);
-   if(variantResult.error)throw variantResult.error;
+    .select("*")
+    .in("product_id",ids)
+    .eq("is_active",true);
+
+   if(variantResult.error) throw variantResult.error;
+
    variants=variantResult.data||[];
+
+   const combinationResult=await db
+    .from("product_variant_combinations")
+    .select("*")
+    .in("product_id",ids)
+    .eq("is_active",true);
+
+   if(combinationResult.error) throw combinationResult.error;
+
+   variantCombinations=combinationResult.data||[];
   }
+
   renderProducts();
+
  }catch(error){
   console.error("Gagal memuat toko:",error);
-  area.innerHTML="<p>Gagal memuat produk: "+escapeHTML(error.message)+"</p>";
+  area.innerHTML=
+   "<p>Gagal memuat produk: "+escapeHTML(error.message)+"</p>";
  }
 }
 
